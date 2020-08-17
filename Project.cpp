@@ -75,24 +75,15 @@ int main() {
 	// 	world_map.add_city(parse_city_from_string(tmp), ++i);
 
 	int limite = 100;
-	vector<WorldCityMap::City> v;
 
 	for(int i=0; getline(file, tmp) && i<limite; i++) {
 		// cout << i << endl;
 		// getline(file, tmp);
 		WorldCityMap::City t = parse_city_from_string(tmp);
-		v.push_back(t);
 		world_map.add_city(t,i);
 	}
 
 	file.close();
-
-
-
-	// for(auto &city : v)
-	// 	world_map.population_query_by_point(city.Longitude, city.Latitude);
-
-	// cout << "ended?" << endl;
 
 	int option;
 	string menu = "Menu:\n1.-Search with geopoint.\n2.-Exit";
