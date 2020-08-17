@@ -68,33 +68,33 @@ int main() {
 
 	// Read data from the .csv
 	// unsigned i=1;
-	// while(getline(file, tmp))
-	// 	world_map.add_city(parse_city_from_string(tmp));
+	while(getline(file, tmp))
+		world_map.add_city(parse_city_from_string(tmp));
 
-	int limite = 100;
+	// int limite = 100;
 
-	for(int i=0; getline(file, tmp) && i<limite; i++) {
-		// cout << i << endl;
-		// getline(file, tmp);
-		WorldCityMap::City t = parse_city_from_string(tmp);
-		world_map.add_city(t);
-	}
+	// for(int i=0; getline(file, tmp) && i<limite; i++) {
+	// 	// cout << i << endl;
+	// 	// getline(file, tmp);
+	// 	WorldCityMap::City t = parse_city_from_string(tmp);
+	// 	world_map.add_city(t);
+	// }
 
 	file.close();
 
-	// int option;
-	// string menu = "Menu:\n1.-Search with geopoint.\n2.-Exit";
-	// float x, y;
+	int option;
+	string menu = "Menu:\n1.-Search with geopoint.\n2.-Exit";
+	float x, y;
 
-	// cout << menu << endl;
-	// cin >> option;
-	// while(option==1) {
-	// 	cin >> y >> x;
-	// 	world_map.population_query_by_point(x,y);
+	cout << menu << endl;
+	cin >> option;
+	while(option==1) {
+		cin >> y >> x;
+		cout << world_map.population_query_by_point(x,y) << endl;
 
-	// 	cout << "new option: " ;
-	// 	cin >> option;
-	// }
+		cout << "new option: " ;
+		cin >> option;
+	}
 	
 	return 0;
 }

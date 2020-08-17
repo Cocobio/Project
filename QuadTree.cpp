@@ -5,8 +5,8 @@ typename QuadTree<T,K>::QuadTreeNode* QuadTree<T,K>::new_node(typename QuadTreeN
 	QuadTreeNode* n = new QuadTreeNode;
 	n->type = t;
 	
-	for(auto &child : n->children)
-		child = nullptr;
+	for(int i=0; i<4; i++)
+		n->children[i] = nullptr;
 
 	return n;
 }
