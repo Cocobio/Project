@@ -88,13 +88,25 @@ int main() {
 	file.close();
 
 
-	cout << v.size() << endl;
 
-	for(auto &city : v)
-		world_map.population_query_by_point(city.Longitude, city.Latitude);
+	// for(auto &city : v)
+	// 	world_map.population_query_by_point(city.Longitude, city.Latitude);
 
 	// cout << "ended?" << endl;
 
+	int option;
+	string menu = "Menu:\n1.-Search with geopoint.\n2.-Exit";
+	float x, y;
+
+	cout << menu << endl;
+	cin >> option;
+	while(option==1) {
+		cin >> y >> x;
+		world_map.population_query_by_point(x,y);
+
+		cout << "new option: " ;
+		cin >> option;
+	}
 	
 	return 0;
 }

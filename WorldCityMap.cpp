@@ -22,3 +22,4 @@ unsigned long long WorldCityMap::population_query_by_point(float x, float y) {
 	cout << quadtree.search_point(x,y) << endl;
 	return 0;
 }
+
