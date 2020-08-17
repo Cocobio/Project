@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include "QuadTree.hpp"
 
 // tmp
 #include <iostream>
@@ -15,7 +16,7 @@ using namespace std;
 
 // Struct for saving the information of a single city
 class City_Struct {
-	private:
+	public:
 		char Country[2];
 		string City;
 		string AccentCity;
@@ -49,17 +50,26 @@ class City_Struct {
 		}
 };
 
+// struct City_Compact {
+// 	float Latitude;
+// 	float Longitude;
+// 	unsigned Population;
+// };
+
 // Class for organizing
 class WorldCityMap {
 	public:
-		typedef City_Struct 	City;
-		typedef vector<City> 	Container;
+		typedef City_Struct		City;
+		// typedef vector<City> 	Container;
 
 	private:
-		Container cities;
+		// Container cities;
+		QuadTree<float, string> quadtree;
 		
 	public:
-		void add_city(City c);
+		WorldCityMap() : quadtree(0.0, 0.0, 360.0, 180.0) {}
+
+		void add_city(City c, int i);
 		void remove_city(City c);
 
 		unsigned long long population_query_by_point(pair<float,float> point);

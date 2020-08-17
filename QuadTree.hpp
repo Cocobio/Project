@@ -11,7 +11,7 @@ QuadTree
 					      |
 					-------------
 						  |
-					   3  |  2
+					   2  |  3
 						  |
 
 references: 
@@ -22,80 +22,63 @@ references:
 #ifndef QUAD_TREE
 #define QUAD_TREE
 
+#include <vector>
+#include <cmath>
 
-// template <class T>
-// class Region {
-// 	public:
-// 		typedef T 		value_t;
-// 	private:
-// 		std::pair<value_t,value_t> x;
-// 		std::pair<value_t,value_t> y;
+// tmp
+#include <iostream>
+#include <stdexcept>
 
-// 	public:
-// 		Region(value_t x_min, value_t x_max, value_t y_min, value_t y_max) {
-// 			x = std::make_pair(x_min,x_max);
-// 			y = std::make_pair(y_min,y_max);
-// 		}
-
-// 		Region(std::pair<value_t,value_t> x, std::pair<value_t,value_t> y) {
-// 			this->x = x;
-// 			this->y = y;
-// 		}
-
-// 		value_t const getX() { return x; };
-// 		value_t const getY() { return y; };
-// };
+using namespace std;
 
 template <class T, class K>
 class QuadTree {
-	private:
-		template <class C, class I>
-		class QuadTreeNode {
-			private:
-				static enum NodeType = {WHITE, GREY, BLACK};
+	public:
+		typedef T 					value_t;
+		typedef K					point_id;
 
-				QuadTreeNode<C,I> children[4];
-				short x, y;
-				I info;
+		//			   00, 01, 10, 11
+		enum Quadrant {NW, NE, SW, SE};
+
+	// private:
+		struct QuadTreeNode {
+				enum NodeType {WHITE, GREY, BLACK};
+
+				QuadTreeNode *children[4];
+				value_t x, y;
+				point_id info;
 				NodeType type;
-				// Region region;
-
-				void divide();
-
-			public:
-				// Constructor
-				QuadTreeNode() {
-
-				}
-
-				// Destructor
-				~QuadTreeNode() {
-
-				}
-
-				void add(std::pair<C,C> point);
-				void remove(std::pair<C,C> point);
 		};
 
-	public:
-		typedef T                                   value_t;
-		typedef K                                   point_id;
-		typedef QuadTreeNode<value_t, point_id>     Node;
-
 	private:
-		Node root;
-		Node* node_pool;
+		QuadTreeNode* root;
+		// vector<QuadTreeNode> node_pool;
+
+		double Lx, Ly;
+		value_t center_x, center_y;
+
+		// memory managment
+		QuadTreeNode* new_node(typename QuadTreeNode::NodeType t);
+		void returnavail(QuadTreeNode* p);
+
+		Quadrant compare(QuadTreeNode *p, value_t x, value_t y);
+		bool insert(QuadTreeNode *p, value_t x, value_t y, value_t lx, value_t ly);
 
 	public:
 		// Constructor
-		QuadTree(std::pair<value_t,value_t> x, std::pair<value_t,value_t> y) {
-
-		}
+		QuadTree(value_t x, value_t y, double lx, double ly) : center_x(x), center_y(y), Lx(lx), Ly(ly), root(nullptr) {}
 
 		// Destructor
 		~QuadTree() {
 
 		}
+
+		bool insert(value_t p_x, value_t p_y, point_id p_id);
+		
+		point_id search_point(value_t x, value_t y);
+
+		template <class R>
+		void search_region(value_t x, value_t y, value_t d_x, value_t d_y, R report);
 };
 
 #include "QuadTree.cpp"

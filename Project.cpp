@@ -11,8 +11,9 @@ podemos hacerlo con flotantes en vez de enteros?
 
 // tmp
 #include <cmath>
+#include "QuadTree.hpp"
 
-#define CITY_FILE "Data/worldcitiespop_fixed.csv"
+#define CITY_FILE "C:/worldcitiespop_fixed.csv"
 
 using namespace std;
 
@@ -44,6 +45,7 @@ WorldCityMap::City parse_city_from_string(string line) {
 	getline(csvStream, tmp ,';');
 	latitude = stof(tmp);
 	getline(csvStream, tmp ,';');
+	longitude = stof(tmp);
 	getline(csvStream, tmp ,',');
 	geopoint_x = stof(tmp);
 	getline(csvStream, tmp);
@@ -63,26 +65,25 @@ int main() {
 
 	ifstream file;
 	string tmp;
-	longitude = stof(tmp);
 
 	file.open(CITY_FILE);
 	getline(file, tmp);
 
 	// Read data from the .csv
-	unsigned i=0;
-	while(getline(file, tmp) && tmp.size()!=0) {
-		world_map.add_city(parse_city_from_string(tmp));
-		cout << i++ << endl;
-	}
+	unsigned i=1;
+	while(getline(file, tmp))
+		world_map.add_city(parse_city_from_string(tmp), ++i);
 
-	getline(file,tmp);
-	WorldCityMap::City test = parse_city_from_string(tmp);
-	test.print();
+	// for(int i=0; i<100000; i++) {
+	// 	cout << i << endl;
+	// 	getline(file, tmp);
+	// 	world_map.add_city(parse_city_from_string(tmp));
+	// }
 
 	file.close();
 
-	
-	// cout << CITY_FILE << endl;
+	cout << "ended?" << endl;
+
 	
 	return 0;
 }
