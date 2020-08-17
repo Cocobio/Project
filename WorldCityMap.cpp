@@ -1,6 +1,6 @@
 #include "WorldCityMap.hpp"
 
-void WorldCityMap::add_city(City_Struct c, int i) {
+void WorldCityMap::add_city(City_Struct c) {
 	// City_Compact c_compact;
 	// c_compact.Latitude = c.Latitude;
 	// c_compact.Longitude = c.Longitude;
@@ -12,14 +12,13 @@ void WorldCityMap::add_city(City_Struct c, int i) {
 
 	// cout << c.City << " " << c.Longitude << "\t" << c.Latitude << endl;
 
-	bool inserted = quadtree.insert(c.Longitude, c.Latitude, c.City+" "+to_string(c.Population));
+	bool inserted = quadtree.insert(c.Longitude, c.Latitude, c.Population);
 
 	// if (!inserted)
 	// 	cout << "Not inserted!" << endl;
 }
 
 unsigned long long WorldCityMap::population_query_by_point(float x, float y) {
-	cout << quadtree.search_point(x,y) << endl;
-	return 0;
+	return quadtree.search_point(x,y);
 }
 

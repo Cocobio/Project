@@ -40,16 +40,13 @@ WorldCityMap::City parse_city_from_string(string line) {
 	getline(csvStream, region ,';');
 
 	// Parsing population and geographic 
+	csvStream >> population;
 	getline(csvStream, tmp ,';');
-	population = stoul(tmp);
 	getline(csvStream, tmp ,';');
-	latitude = stof(tmp);
 	getline(csvStream, tmp ,';');
-	longitude = stof(tmp);
+	csvStream >> geopoint_x;
 	getline(csvStream, tmp ,',');
-	geopoint_x = stof(tmp);
-	getline(csvStream, tmp);
-	geopoint_y = stof(tmp);
+	csvStream >> geopoint_y;
 
 	// difference convention for denoting the '.'
 	latitude = geopoint_x;
@@ -72,7 +69,7 @@ int main() {
 	// Read data from the .csv
 	// unsigned i=1;
 	// while(getline(file, tmp))
-	// 	world_map.add_city(parse_city_from_string(tmp), ++i);
+	// 	world_map.add_city(parse_city_from_string(tmp));
 
 	int limite = 100;
 
@@ -80,24 +77,24 @@ int main() {
 		// cout << i << endl;
 		// getline(file, tmp);
 		WorldCityMap::City t = parse_city_from_string(tmp);
-		world_map.add_city(t,i);
+		world_map.add_city(t);
 	}
 
 	file.close();
 
-	int option;
-	string menu = "Menu:\n1.-Search with geopoint.\n2.-Exit";
-	float x, y;
+	// int option;
+	// string menu = "Menu:\n1.-Search with geopoint.\n2.-Exit";
+	// float x, y;
 
-	cout << menu << endl;
-	cin >> option;
-	while(option==1) {
-		cin >> y >> x;
-		world_map.population_query_by_point(x,y);
+	// cout << menu << endl;
+	// cin >> option;
+	// while(option==1) {
+	// 	cin >> y >> x;
+	// 	world_map.population_query_by_point(x,y);
 
-		cout << "new option: " ;
-		cin >> option;
-	}
+	// 	cout << "new option: " ;
+	// 	cin >> option;
+	// }
 	
 	return 0;
 }

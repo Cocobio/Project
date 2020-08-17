@@ -64,12 +64,12 @@ class WorldCityMap {
 
 	private:
 		// Container cities;
-		QuadTree<float, string> quadtree;
+		QuadTree<float, unsigned> quadtree;
 		
 	public:
 		WorldCityMap() : quadtree(0.0, 0.0, 360.0, 180.0) {}
 
-		void add_city(City c, int i);
+		void add_city(City c);
 		void remove_city(City c);
 
 		unsigned long long population_query_by_point(pair<float,float> point);
