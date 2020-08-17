@@ -70,19 +70,30 @@ int main() {
 	getline(file, tmp);
 
 	// Read data from the .csv
-	unsigned i=1;
-	while(getline(file, tmp))
-		world_map.add_city(parse_city_from_string(tmp), ++i);
+	// unsigned i=1;
+	// while(getline(file, tmp))
+	// 	world_map.add_city(parse_city_from_string(tmp), ++i);
 
-	// for(int i=0; i<100000; i++) {
-	// 	cout << i << endl;
-	// 	getline(file, tmp);
-	// 	world_map.add_city(parse_city_from_string(tmp));
-	// }
+	int limite = 100;
+	vector<WorldCityMap::City> v;
+
+	for(int i=0; getline(file, tmp) && i<limite; i++) {
+		// cout << i << endl;
+		// getline(file, tmp);
+		WorldCityMap::City t = parse_city_from_string(tmp);
+		v.push_back(t);
+		world_map.add_city(t,i);
+	}
 
 	file.close();
 
-	cout << "ended?" << endl;
+
+	cout << v.size() << endl;
+
+	for(auto &city : v)
+		world_map.population_query_by_point(city.Longitude, city.Latitude);
+
+	// cout << "ended?" << endl;
 
 	
 	return 0;

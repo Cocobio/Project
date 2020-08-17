@@ -62,7 +62,8 @@ class QuadTree {
 		void returnavail(QuadTreeNode* p);
 
 		Quadrant compare(QuadTreeNode *p, value_t x, value_t y);
-		bool insert(QuadTreeNode *p, value_t x, value_t y, value_t lx, value_t ly);
+		bool insert(QuadTreeNode *p, value_t x, value_t y, double lx, double ly);
+		point_id search_point(QuadTreeNode *p, value_t x, value_t y, double lx, double ly);
 
 	public:
 		// Constructor

@@ -49,7 +49,7 @@ bool QuadTree<T,K>::insert(value_t p_x, value_t p_y, point_id p_id) {
 // Insert point on tree
 // returns whether the point was inserted or not
 template<class T, class K>
-bool QuadTree<T,K>::insert(QuadTreeNode *p, value_t x, value_t y, value_t lx, value_t ly) {
+bool QuadTree<T,K>::insert(QuadTreeNode *p, value_t x, value_t y, double lx, double ly) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
@@ -71,16 +71,14 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, value_t x, value_t y, value_t lx, va
 			root = new_node(QuadTreeNode::GREY);
 			q = compare(u, x, y);
 			root->children[q] = u;
-			// cout << "root Q: " << q << endl;
 		}
 	}
 	// 
 	t = root;
 	q = compare(p,x,y);
-	// cout << "pointQ: " << q << endl;
 
+	// Find the next quadrant
 	while(t->children[q]!=nullptr && t->children[q]->type == QuadTreeNode::GREY) {
-		// cout << "first while" << endl;
 		t = t->children[q];
 		x += XF[q]*lx;
 		y += YF[q]*ly;
@@ -89,6 +87,7 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, value_t x, value_t y, value_t lx, va
 		q = compare(p,x,y);
 	}
 
+	// insert in quadrant
 	if (t->children[q]==nullptr) t->children[q] = p;
 	else if (fabs(t->children[q]->x-p->x)<0.00001 && fabs(t->children[q]->y-p->y)<0.00001) return false;
 	else {
@@ -106,16 +105,6 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, value_t x, value_t y, value_t lx, va
 			q = compare(p,x,y);
 			uq = compare(u,x,y);
 
-			if (lx <= 0.000001 || ly <= 0.000001) {
-			cout << "===============\nPoints: ";
-			cout << p->x << ", " << p->y << "\tu:" << u->x << ", " << u->y << endl;
-			cout << p->info << "\t" << u->info << endl;
-			cout << "===============\nQuadrant: " << x << ", " << y << ":\t";
-			cout << lx << "  " << ly << "\n q:" << q << "   uq:" << uq << endl << endl;
-				cout << "lx and ly to small!" << endl;
-				throw;
-			}
-
 		} while (q==uq);
 
 		t->children[q] = p;
@@ -128,7 +117,50 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, value_t x, value_t y, value_t lx, va
 // Drive function
 template<class T, class K>
 typename QuadTree<T,K>::point_id QuadTree<T,K>::search_point(value_t x, value_t y) {
-	return search_point(x,y,center_x,center_y,Lx,Ly);
+	QuadTreeNode *p = new_node(QuadTreeNode::BLACK);
+	p->x = x;
+	p->y = y;
+
+	point_id r = search_point(p,center_x,center_y,Lx,Ly);
+	
+	returnavail(p);
+	return r;
+}
+
+template<class T, class K>
+typename QuadTree<T,K>::point_id QuadTree<T,K>::search_point(QuadTreeNode *p, value_t x, value_t y, double lx, double ly) {
+	static float XF[] = {-0.25,0.25,-0.25,0.25};
+	static float YF[] = {0.25,0.25,-0.25,-0.25};
+
+	// If there is no node root
+	if (root==nullptr) {
+		return point_id();
+	}
+	
+	// If root is leaf check if the position matches the point
+	if (root->type == QuadTreeNode::BLACK) {
+		if (fabs(root->x-p->x)<0.00001 && fabs(root->y-p->y)<0.00001)
+			return root->info;
+		else
+			return point_id();
+	} 
+
+	// Search for a leaf
+	QuadTreeNode *t = root;
+	Quadrant q = compare(p,x,y);
+	while (t->children[q] != nullptr && t->children[q]->type == QuadTreeNode::GREY) {
+		t = t->children[q];
+		x += XF[q]*lx;
+		y += YF[q]*ly;
+		lx /= 2.0;
+		ly /= 2.0;
+		q = compare(p,x,y);
+	}
+
+	if (t->children[q] == nullptr || fabs(t->children[q]->x-p->x)>=0.00001 || fabs(t->children[q]->y-p->y)>=0.00001) 
+		return point_id();
+	else 
+		return t->children[q]->info;
 }
 
 // Drive function
@@ -137,10 +169,3 @@ void QuadTree<T,K>::search_region(value_t x, value_t y, value_t d_x, value_t d_y
 
 }
 
-
-
-
-
-/*
-ga;nzafieng;Nzafieng;06;414856;0,0666667;11,8833333;0.0666667,11.8833333
-*/

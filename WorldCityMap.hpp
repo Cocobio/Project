@@ -73,6 +73,7 @@ class WorldCityMap {
 		void remove_city(City c);
 
 		unsigned long long population_query_by_point(pair<float,float> point);
+		unsigned long long population_query_by_point(float x, float y);
 		unsigned long long population_query_by_region(pair<float,float> center, float width, float height);
 };
 
