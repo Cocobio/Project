@@ -63,9 +63,11 @@ class QuadTree {
 
 		Quadrant compare(QuadTreeNode *p, value_t x, value_t y);
 		bool insert(QuadTreeNode *p, value_t x, value_t y, double lx, double ly);
-		void remove(QuadTreeNode *p, value_t x, value_t y, double lx, double ly);
+		bool remove(QuadTreeNode *p, value_t x, value_t y, double lx, double ly);
 
 		point_id search_point(QuadTreeNode *p, value_t x, value_t y, double lx, double ly);
+		template <class R>
+		void search_region(QuadTreeNode *n, value_t x, value_t y, double lx, double ly, value_t r_x, value_t r_y, value_t lr_x, value_t lr_y, R report);
 
 	public:
 		// Constructor
@@ -77,7 +79,7 @@ class QuadTree {
 		}
 
 		bool insert(value_t x, value_t y, point_id p_id);
-		void remove(value_t x, value_t y);
+		bool remove(value_t x, value_t y);
 		
 		point_id search_point(value_t x, value_t y);
 

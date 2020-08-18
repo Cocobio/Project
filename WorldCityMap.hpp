@@ -59,23 +59,26 @@ class City_Struct {
 // Class for organizing
 class WorldCityMap {
 	public:
-		typedef City_Struct		City;
-		// typedef vector<City> 	Container;
+		typedef City_Struct					City;
+		// typedef vector<City> 				Container;
+		typedef unsigned 					point_id;
+		typedef QuadTree<float, point_id> 	PRTree;
 
 	private:
 		// Container cities;
-		QuadTree<float, unsigned> quadtree;
+		PRTree quadtree;
 		
 	public:
 		WorldCityMap() : quadtree(0.0, 0.0, 360.0, 180.0) {}
 
-		void add_city(City c);
-		void remove_city(City c);
+		bool add_city(City c);
+		bool remove_city(City c);
 		void remove_city_by_geopoint(float x, float y);
 
 		unsigned long long population_query_by_point(pair<float,float> point);
 		unsigned long long population_query_by_point(float x, float y);
 		unsigned long long population_query_by_region(pair<float,float> center, float width, float height);
+		unsigned n_cities_query_by_region(pair<float,float> center, float width, float height);
 };
 
 #include "WorldCityMap.cpp"

@@ -68,42 +68,68 @@ int main() {
 
 	// Read data from the .csv
 	// unsigned i=1;
-	while(getline(file, tmp))
-		world_map.add_city(parse_city_from_string(tmp));
+	// while(getline(file, tmp))
+	// 	world_map.add_city(parse_city_from_string(tmp));
 
-	// int limite = 100;
+	unsigned limite = -1;
+	vector<WorldCityMap::City> all_cities;
 
-	// for(int i=0; getline(file, tmp) && i<limite; i++) {
-	// 	// cout << i << endl;
-	// 	// getline(file, tmp);
-	// 	WorldCityMap::City t = parse_city_from_string(tmp);
-	// 	world_map.add_city(t);
-	// }
+	for(int i=0; getline(file, tmp) && i<limite; i++) {
+		// cout << i << endl;
+		// getline(file, tmp);
+		WorldCityMap::City t = parse_city_from_string(tmp);
+		// t.print();
+		if (world_map.add_city(t))
+			all_cities.push_back(t);
+	}
 
 	file.close();
 
-	int option, exit=3;
-	string menu = "Menu:\n1.-Search with geopoint.\n2.-Remove\n3.-Exit";
-	float x, y;
+	// region
+	float x = 37.0, y = 40.5, w = 6.0, h = 2.0;	
 
-	cout << menu << endl;
-	cin >> option;
-	while(option!=exit) {
-		cin >> y >> x;
-		
-		switch(option) {
-			case 1:
-			cout << world_map.population_query_by_point(x,y) << endl;
-			break;
+	cout << endl << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
 
-			case 2:
-			world_map.remove_city_by_geopoint(x,y);
-			break;
-		}
-
-		cout << "new option: " ;
-		cin >> option;
+	unsigned long long p = 0;
+	for (auto &c : all_cities) {
+		if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
+			p += c.Population;
 	}
+
+	cout << endl << p << endl;
+
+	// int option, exit=5;
+	// string menu = "Menu:\n1.-Search with geopoint.\n2.-Remove\n3.-Population by Region\n4.-Cities on Region\n5.-Exit";
+	// float x, y, w, h;
+
+	// cout << menu << endl;
+	// cin >> option;
+	// while(option!=exit) {
+	// 	cin >> y >> x;
+		
+	// 	switch(option) {
+	// 		case 1:
+	// 		cout << world_map.population_query_by_point(x,y) << endl;
+	// 		break;
+
+	// 		case 2:
+	// 		world_map.remove_city_by_geopoint(x,y);
+	// 		break;
+
+	// 		case 3:
+	// 		cin >> w >> h;
+	// 		cout << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
+	// 		break;
+
+	// 		case 4:
+	// 		cin >> w >> h;
+	// 		cout << world_map.n_cities_query_by_region(make_pair(x,y),w,h) << endl;
+	// 		break;
+	// 	}
+
+	// 	cout << "new option: " ;
+	// 	cin >> option;
+	// }
 	
 	return 0;
 }

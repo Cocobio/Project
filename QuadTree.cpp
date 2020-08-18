@@ -116,28 +116,31 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, value_t x, value_t y, double lx, dou
 
 // Drive functions
 template<class T, class K>
-void QuadTree<T,K>::remove(value_t x, value_t y) {
+bool QuadTree<T,K>::remove(value_t x, value_t y) {
 	QuadTreeNode *p = new_node(QuadTreeNode::BLACK);
 	p->x = x;
 	p->y = y;
 
-	remove(p,center_x,center_y,Lx,Ly);
+	bool removed = remove(p,center_x,center_y,Lx,Ly);
 	returnavail(p);
+
+	return removed;
 }
 
 // Delete node from tree
 template<class T, class K>
-void QuadTree<T,K>::remove(QuadTreeNode *p, value_t x, value_t y, double lx, double ly) {
+bool QuadTree<T,K>::remove(QuadTreeNode *p, value_t x, value_t y, double lx, double ly) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
-	if (root==nullptr) return;
+	if (root==nullptr) return false;
 	else if (root->type == QuadTreeNode::BLACK) {
 		if (fabs(root->x-p->x)<0.00001 && fabs(root->y-p->y)<0.00001) {
 			returnavail(root);
 			root = nullptr;
-		}	
-		return;
+			return true;
+		}
+		return false;
 	}
 
 	QuadTreeNode *t = root, *f = nullptr, *ft, *tmp;
@@ -162,7 +165,7 @@ void QuadTree<T,K>::remove(QuadTreeNode *p, value_t x, value_t y, double lx, dou
 	} while (t!=nullptr && t->type==QuadTreeNode::GREY);
 
 	if (t==nullptr || fabs(t->x-p->x)>=0.00001 || fabs(t->y-p->y)>=0.00001)
-		return;
+		return false;
 
 	returnavail(t);
 	ft->children[q] = nullptr;
@@ -170,25 +173,37 @@ void QuadTree<T,K>::remove(QuadTreeNode *p, value_t x, value_t y, double lx, dou
 
 	for (int i=0; i<4; i++) {
 		if (ft->children[i]!=nullptr) {
-			if (ft->children[i]->type == QuadTreeNode::GREY) return;
+			if (ft->children[i]->type == QuadTreeNode::GREY) return true;
 		}
 		else s++;
 	}
 
-	if (s>1) return;
+	if (s>1) return true;
 
 	t = f==nullptr ? root : f->children[qf];
-	for (int i = NW; t->children[i]==nullptr; i++) {
-		q = static_cast<Quadrant>(i);
+
+
+
+
+	while (t->type == QuadTreeNode::GREY) {
+		for (int i = 0; t->children[i]==nullptr && i<4; i++) {
+			q = static_cast<Quadrant>(i);
+		}
+
+		tmp = t->children[q];
+		t->children[q] = nullptr;
+		returnavail(t);
+		t = tmp;
 	}
 
-	tmp = t->children[q];
-	t->children[q] = nullptr;
-	returnavail(t);
-	t = tmp;
+
+
+
 
 	if (f==nullptr) root = t;
 	else f->children[qf] = t;
+
+	return true;
 }
 
 // Drive function
@@ -241,6 +256,32 @@ typename QuadTree<T,K>::point_id QuadTree<T,K>::search_point(QuadTreeNode *p, va
 // Drive function
 template<class T, class K> template<class R>
 void QuadTree<T,K>::search_region(value_t x, value_t y, value_t d_x, value_t d_y, R report) {
+	// If there are no points on the tree, just return
+	if (root==nullptr) return;
 
+	search_region(root,center_x,center_y,Lx,Ly,x,y,d_x,d_y,report);
 }
 
+// 
+template<class T, class K> template<class R>
+void QuadTree<T,K>::search_region(QuadTreeNode *r, value_t x, value_t y, double lx, double ly, value_t r_x, value_t r_y, value_t lr_x, value_t lr_y, R report) {
+	static float XF[] = {-0.25,0.25,-0.25,0.25};
+	static float YF[] = {0.25,0.25,-0.25,-0.25};
+
+	if (r->type==QuadTreeNode::BLACK) {
+		// cout << "nodo black " << r->x << ", " << r->y << " " << r->info << "\tquad: (" << x << ", " << y << ")  (" << lx << ", " << ly << ")" << endl;
+		if (fabs(r->x-r_x)*2<=lr_x && fabs(r->y-r_y)*2<=lr_y) {
+			// cout << "reporting " << r->info << endl;
+			report(r->info);
+		}
+		return;
+	}
+
+	// else GREY
+	for (int i=0; i<4; i++) {
+		if (r->children[i]!=nullptr && 
+			fabs(x+XF[i]*lx-r_x)*2<=lx+lr_x && 
+			fabs(y+YF[i]*ly-r_y)*2<=ly+lr_y)
+			search_region(r->children[i],x+XF[i]*lx,y+YF[i]*ly,lx/2.0,ly/2.0,r_x,r_y,lr_x,lr_y,report);
+	}
+}
