@@ -82,15 +82,24 @@ int main() {
 
 	file.close();
 
-	int option;
-	string menu = "Menu:\n1.-Search with geopoint.\n2.-Exit";
+	int option, exit=3;
+	string menu = "Menu:\n1.-Search with geopoint.\n2.-Remove\n3.-Exit";
 	float x, y;
 
 	cout << menu << endl;
 	cin >> option;
-	while(option==1) {
+	while(option!=exit) {
 		cin >> y >> x;
-		cout << world_map.population_query_by_point(x,y) << endl;
+		
+		switch(option) {
+			case 1:
+			cout << world_map.population_query_by_point(x,y) << endl;
+			break;
+
+			case 2:
+			world_map.remove_city_by_geopoint(x,y);
+			break;
+		}
 
 		cout << "new option: " ;
 		cin >> option;

@@ -1,6 +1,6 @@
 #include "WorldCityMap.hpp"
 
-void WorldCityMap::add_city(City_Struct c) {
+void WorldCityMap::add_city(City c) {
 	// City_Compact c_compact;
 	// c_compact.Latitude = c.Latitude;
 	// c_compact.Longitude = c.Longitude;
@@ -22,3 +22,10 @@ unsigned long long WorldCityMap::population_query_by_point(float x, float y) {
 	return quadtree.search_point(x,y);
 }
 
+void WorldCityMap::remove_city(City c) {
+	quadtree.remove(c.Longitude, c.Latitude);
+}
+
+void WorldCityMap::remove_city_by_geopoint(float x, float y) {
+	quadtree.remove(x,y);
+}
