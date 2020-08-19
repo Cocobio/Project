@@ -58,6 +58,9 @@ WorldCityMap::City parse_city_from_string(string line) {
 int main() {
 	cout << "Hello world!" << endl;
 
+	// cout << "Node size: " << sizeof(WorldCityMap::PRTree::QuadTreeNode) << endl;
+	// cout << sizeof(float) << endl << sizeof(unsigned) << endl << sizeof(WorldCityMap::PRTree::QuadTreeNode::NodeType) << endl;
+
 	WorldCityMap world_map;
 
 	ifstream file;
@@ -85,18 +88,33 @@ int main() {
 
 	file.close();
 
-	// region
-	float x = 37.0, y = 40.5, w = 6.0, h = 2.0;	
+	cout << "Numero de nodos: " << world_map.counter() << endl;
+	cout << "Memoria usada por los nodos: " << sizeof(QuadTree<float, unsigned>::QuadTreeNode)*world_map.counter() << endl;
+	cout << "Memoria usada por la estructura quadtree: " << sizeof(WorldCityMap::PRTree) << endl;
+	cout << "Puntos almacenados: " << world_map.size() << " " << all_cities.size() << endl;
 
-	cout << endl << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
-
-	unsigned long long p = 0;
-	for (auto &c : all_cities) {
-		if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
-			p += c.Population;
+	for(auto &city : all_cities) {
+		// cout << "delete: " << city.City << endl;
+		world_map.remove_city(city);
 	}
+	cout << "Despues de borrar todo\nNodos: " << world_map.counter() << "\nPuntos: " << world_map.size() << endl;
 
-	cout << endl << p << endl;
+	// cout << world_map.n_cities_query_by_region(make_pair(0,0),360,180) << endl;
+
+	// cout << all_cities.size() << " cities added to the quadtree" << endl;
+
+	// // region
+	// float x = 37.0, y = 40.5, w = 6.0, h = 2.0;	
+	// cout << "searching!" << endl;
+	// cout << endl << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
+
+	// unsigned long long p = 0;
+	// for (auto &c : all_cities) {
+	// 	if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
+	// 		p += c.Population;
+	// }
+
+	// cout << endl << p << endl;
 
 	// int option, exit=5;
 	// string menu = "Menu:\n1.-Search with geopoint.\n2.-Remove\n3.-Population by Region\n4.-Cities on Region\n5.-Exit";

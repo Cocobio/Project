@@ -79,6 +79,9 @@ class WorldCityMap {
 		unsigned long long population_query_by_point(float x, float y);
 		unsigned long long population_query_by_region(pair<float,float> center, float width, float height);
 		unsigned n_cities_query_by_region(pair<float,float> center, float width, float height);
+
+		unsigned counter() { return quadtree.counter(); }
+		size_t size() { return quadtree.size(); }
 };
 
 #include "WorldCityMap.cpp"
