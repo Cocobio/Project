@@ -34,8 +34,9 @@ references:
 
 // #define EPSILON 0.00001
 
-#include <vector>
+// #include <vector>
 #include <cmath>
+#include <queue>
 
 using namespace std;
 
@@ -93,7 +94,7 @@ class QuadTree {
 		QuadTree(value_t x, value_t y, double lx, double ly) : center_x(x), center_y(y), Lx(lx), Ly(ly), root(nullptr), node_count(0), _size(0) {}
 
 		// Destructor
-		~QuadTree() { returnavail(root); }
+		~QuadTree() { clear(); }
 
 		// Driver functions for insertion and delition of nodes
 		bool insert(value_t x, value_t y, point_id p_id);
@@ -111,6 +112,11 @@ class QuadTree {
 		// Clean and return the number of points on the structure
 		void clear();
 		size_t size();
+
+		// BFS function using a reported to work on the nodes.
+		// The function should take the node and the level of the node on the tree
+		template <class R>
+		void bfs(R report);
 };
 
 #include "QuadTree.cpp"

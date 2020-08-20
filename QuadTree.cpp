@@ -341,3 +341,45 @@ template<class T, class K>
 size_t QuadTree<T,K>::size() {
 	return _size;
 }
+
+// BFS function using a reported
+template <class T, class K> template <class R>
+void QuadTree<T,K>::bfs(R report) {
+	queue<QuadTreeNode*> a, b;
+	queue<QuadTreeNode*> *current_lvl, *next_lvl, *tmp;
+
+	current_lvl = &a;
+	next_lvl = &b;
+	
+	size_t depth = 0;
+
+	current_lvl->push(root);
+	
+	// while there are nodes to process
+	while (current_lvl->size()) {
+
+		// Process all the nodes on the current depth lvl
+		while (current_lvl->size()) {
+			// select a node
+			QuadTreeNode *node = current_lvl->front();
+			current_lvl->pop();
+
+			// push the nodes of the next lvl queue
+			for (int i=0; i<4; i++)
+				if (node->children[i] != nullptr)
+					next_lvl->push(node->children[i]);
+
+			// report current node using depth
+			report(node, depth);
+		}
+
+		// next lvl
+		depth++;
+
+		// swap queues
+		tmp = current_lvl;
+		current_lvl = next_lvl;
+		next_lvl = tmp;
+	}
+}
+

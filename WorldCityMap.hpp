@@ -10,16 +10,20 @@ Implementation of the interface between the quadtree and the requirements for th
 #define WORLD_CITY_MAP
 
 #include <vector>
+#include <map>
 #include <string>
 #include <utility>
 #include "QuadTree.hpp"
 
 using namespace std;
 
+// Playing with precisions float/double
+typedef float precision;
+
 // Struct for saving the information of a single city
 class City_Struct {
 	public:
-		typedef double 			value_t;
+		typedef precision		value_t;
 
 		char Country[2];
 		string City;
@@ -60,7 +64,7 @@ class WorldCityMap {
 		typedef City_Struct						City;
 		// typedef vector<City> 					Container;
 		typedef unsigned 						point_id;
-		typedef double 							value_t;
+		typedef precision						value_t;
 		typedef QuadTree<value_t, point_id> 	PRTree;
 
 	private:
@@ -87,6 +91,9 @@ class WorldCityMap {
 		unsigned quadtree_n_nodes();
 		size_t size();
 		void clear();
+
+		// Get a vector for the depth on the black nodes
+		map<size_t,size_t> get_leaf_depths();
 };
 
 #include "WorldCityMap.cpp"

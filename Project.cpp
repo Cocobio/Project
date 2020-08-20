@@ -70,31 +70,37 @@ int main() {
 
 	// Read data from the .csv
 	// unsigned i=1;
-	// while(getline(file, tmp))
-	// 	world_map.add_city(parse_city_from_string(tmp));
+	while(getline(file, tmp))
+		world_map.add_city(parse_city_from_string(tmp));
 
-	unsigned limite = -1;
-	vector<WorldCityMap::City> all_cities;
+	// unsigned limite = -1;
+	// vector<WorldCityMap::City> all_cities;
 
-	for(int i=0; getline(file, tmp) && i<limite; i++) {
+	// for(int i=0; getline(file, tmp) && i<limite; i++) {
 		// cout << i << endl;
 		// getline(file, tmp);
-		WorldCityMap::City t = parse_city_from_string(tmp);
+		// WorldCityMap::City t = parse_city_from_string(tmp);
 		// t.print();
-		if (world_map.add_city(t))
-			all_cities.push_back(t);
-	}
+		// if (world_map.add_city(t))
+		// 	all_cities.push_back(t);
+	// }
 
 	file.close();
 
 	cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
 	cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
-	cout << "Puntos almacenados: " << world_map.size() << " " << all_cities.size() << endl;
+	// cout << "Puntos almacenados: " << world_map.size() << " " << all_cities.size() << endl;
 
 	// for(auto &city : all_cities) {
 	// 	// cout << "delete: " << city.City << endl;
 	// 	world_map.remove_city(city);
 	// }
+
+	map<size_t,size_t> depths = world_map.get_leaf_depths();
+
+	for (auto &d : depths)
+		cout << d.first << " : " << d.second << endl;
+	
 	world_map.clear();
 	cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
 

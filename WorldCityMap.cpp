@@ -76,3 +76,13 @@ size_t WorldCityMap::size() {
 void WorldCityMap::clear() {
 	quadtree.clear();
 }
+
+// 
+map<size_t,size_t> WorldCityMap::get_leaf_depths() {
+	map<size_t,size_t> depths;
+
+	quadtree.bfs([&depths] (PRTree::QuadTreeNode *a, size_t &d) -> void { if(a->type==PRTree::QuadTreeNode::BLACK) depths[d]++; } );
+
+	return depths;
+}
+
