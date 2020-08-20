@@ -81,7 +81,7 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, double x, double y, double lx, doubl
 	Quadrant q;
 
 	// If the node root is a leaf 
-	if(root->type != QuadTreeNode::GREY) {
+	if(root->type == QuadTreeNode::BLACK) {
 		if (p->x==root->x && p->y==root->y) return false;
 		else {
 			u = root;
@@ -90,11 +90,12 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, double x, double y, double lx, doubl
 			root->children[q] = u;
 		}
 	}
-	// 
+
+	// prepare variables for dive into the tree
 	t = root;
 	q = compare(p,x,y);
 
-	// Find the next quadrant
+	// Find the quadrant where p will be inserted
 	while(t->children[q]!=nullptr && t->children[q]->type == QuadTreeNode::GREY) {
 		t = t->children[q];
 		x += XF[q]*lx;
@@ -106,12 +107,16 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, double x, double y, double lx, doubl
 
 	// insert in quadrant
 	if (t->children[q]==nullptr) t->children[q] = p;
+	// No repeated points
 	else if (t->children[q]->x == p->x && t->children[q]->y == p->y) return false;
 	// else if (fabs(t->children[q]->x-p->x)<EPSILON && fabs(t->children[q]->y-p->y)<EPSILON) return false;
+	// If the quadrant has a point with different position, then subdivide
 	else {
+		// u = previus point
 		u = t->children[q];
 		Quadrant uq;
 
+		// subdivide until p and u fall on different quadrants
 		do {
 			t->children[q] = new_node(QuadTreeNode::GREY);
 			t = t->children[q];
@@ -125,6 +130,7 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, double x, double y, double lx, doubl
 
 		} while (q==uq);
 
+		// Assign the leaf nodes
 		t->children[q] = p;
 		t->children[uq] = u;
 	}
@@ -133,9 +139,10 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, double x, double y, double lx, doubl
 	return true;
 }
 
-// Drive functions
+// Drive functions for delete
 template<class T, class K>
 bool QuadTree<T,K>::remove(value_t x, value_t y) {
+	// Creates nodes for maintaining naming convention and structure of functions
 	QuadTreeNode *p = new_node(QuadTreeNode::BLACK);
 	p->x = x;
 	p->y = y;
@@ -149,6 +156,7 @@ bool QuadTree<T,K>::remove(value_t x, value_t y) {
 // Delete node from tree
 template<class T, class K>
 bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, double ly) {
+	// Factors to move center of regions while the algorithm moves down the tree
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
@@ -157,7 +165,8 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 
 	// if quadtree size is 1
 	else if (root->type == QuadTreeNode::BLACK) {
-		if (fabs(root->x-p->x)<EPSILON && fabs(root->y-p->y)<EPSILON) {
+		// if (fabs(root->x-p->x)<EPSILON && fabs(root->y-p->y)<EPSILON) {
+		if (root->x == p->x && root->y == p->y) {
 			returnavail(root);
 			root = nullptr;
 			_size--;
@@ -166,30 +175,36 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 		return false;
 	}
 
+	// variables
 	QuadTreeNode *t = root, *f = nullptr, *ft, *tmp;
 	Quadrant q, qf;
 
+	// Search for the quadrant that might contain the point p
 	do {
 		q = compare(p,x,y);
 
+		// Save the last node that had more than 1 child
 		if (t->children[q]->type == QuadTreeNode::GREY && (t->children[q^1]!=nullptr ||
 			t->children[q^2]!=nullptr || t->children[q^3]!=nullptr)) {
 			f = t;
 			qf = q;
 		}
 		
+		// Save the father of the quadrant
 		ft = t;
 		t = t->children[q];
 
+		// dive to the next level
 		x += XF[q]*lx;
 		y += YF[q]*ly;
 		lx /= 2.0;
 		ly /= 2.0;
 	} while (t!=nullptr && t->type==QuadTreeNode::GREY);
+	// until the node doesnt exist or its found as a leaf node
 
-
-	if (t==nullptr || fabs(t->x-p->x)>=EPSILON || fabs(t->y-p->y)>=EPSILON)
-		return false;
+	// If there is no node on the quadrant for p or the leaf node has different position
+	// if (t==nullptr || fabs(t->x-p->x)>=EPSILON || fabs(t->y-p->y)>=EPSILON) return false;
+	if (t== nullptr || t->x != p->x || t->y != p->y) return false;
 
 	// The point is contained and will be deleted
 	_size--;
@@ -198,6 +213,7 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 	ft->children[q] = nullptr;
 	unsigned s = 0;
 
+	// Count the siblings of the node deleted
 	for (int i=0; i<4; i++) {
 		if (ft->children[i]!=nullptr) {
 			if (ft->children[i]->type == QuadTreeNode::GREY) return true;
@@ -205,58 +221,63 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 		}
 	}
 
+	// If the node has more than 1 sibling, then no collapse is needed
 	if (s>1) return true;
 
+	// Set the node from where the collapse will be done
 	t = f==nullptr ? root : f->children[qf];
 
+	// Collapse the branch that lead to the point p and its sibling
 	while (t!=nullptr && t->type == QuadTreeNode::GREY) {
 		q = NW;
+		// Find the child
 		for (int i = 0; t->children[i]==nullptr; i++)
 			q = static_cast<Quadrant>(i+1);
 
+		// delete the father and continue iterating through the child
 		tmp = t->children[q];
 		t->children[q] = nullptr;
 		returnavail(t);
 		t = tmp;
-
 	}
 
+	// Set the black node to the position
 	if (f==nullptr) root = t;
 	else f->children[qf] = t;
 
 	return true;
 }
 
-// Drive function
-template<class T, class K>
-typename QuadTree<T,K>::point_id QuadTree<T,K>::search_point(value_t x, value_t y) {
+// Drive function for the seach using a point
+template<class T, class K> template <class R>
+void QuadTree<T,K>::search_point(value_t x, value_t y, R report) {
 	QuadTreeNode *p = new_node(QuadTreeNode::BLACK);
 	p->x = x;
 	p->y = y;
 
-	point_id r = search_point(p,center_x,center_y,Lx,Ly);
+	search_point(p,center_x,center_y,Lx,Ly,report);
 	
 	returnavail(p);
-	return r;
 }
 
-template<class T, class K>
-typename QuadTree<T,K>::point_id QuadTree<T,K>::search_point(QuadTreeNode *p, double x, double y, double lx, double ly) {
+// Search a point and return its info
+template<class T, class K> template <class R>
+void QuadTree<T,K>::search_point(QuadTreeNode *p, double x, double y, double lx, double ly, R report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
 	// If there is no node root
-	if (root==nullptr) return point_id();
+	if (root==nullptr) return;
 	
 	// If root is leaf check if the position matches the point
 	if (root->type == QuadTreeNode::BLACK) {
-		if (fabs(root->x-p->x)<EPSILON && fabs(root->y-p->y)<EPSILON)
-			return root->info;
-		else
-			return point_id();
+		// if (fabs(root->x-p->x)<EPSILON && fabs(root->y-p->y)<EPSILON)
+		if (root->x == p->x && root->y == p->y)
+			report(root->info);
+		return;
 	} 
 
-	// Search for a leaf
+	// Search for a leaf that matches the point
 	QuadTreeNode *t = root;
 	Quadrant q = compare(p,x,y);
 	while (t->children[q] != nullptr && t->children[q]->type == QuadTreeNode::GREY) {
@@ -268,13 +289,14 @@ typename QuadTree<T,K>::point_id QuadTree<T,K>::search_point(QuadTreeNode *p, do
 		q = compare(p,x,y);
 	}
 
-	if (t->children[q] == nullptr || fabs(t->children[q]->x-p->x)>=EPSILON || fabs(t->children[q]->y-p->y)>=EPSILON) 
-		return point_id();
-	else 
-		return t->children[q]->info;
+	// If the point was found, report it
+	// if (t->children[q] == nullptr || fabs(t->children[q]->x-p->x)>=EPSILON || fabs(t->children[q]->y-p->y)>=EPSILON) 
+	if (t->children[q] != nullptr && t->children[q]->x == p->x && t->children[q]->y == p->y)
+		report(t->children[q]->info);
+	return;
 }
 
-// Drive function
+// Drive function for search a region
 template<class T, class K> template<class R>
 void QuadTree<T,K>::search_region(value_t x, value_t y, value_t d_x, value_t d_y, R report) {
 	// If there are no points on the tree, just return
@@ -284,19 +306,20 @@ void QuadTree<T,K>::search_region(value_t x, value_t y, value_t d_x, value_t d_y
 	search_region(root,center_x,center_y,Lx,Ly,x,y,d_x,d_y,report);
 }
 
-// 
+// Search points on a region and report then using a function
 template<class T, class K> template<class R>
-void QuadTree<T,K>::search_region(QuadTreeNode *r, double x, double y, double lx, double ly, value_t r_x, value_t r_y, value_t lr_x, value_t lr_y, R report) {
+void QuadTree<T,K>::search_region(QuadTreeNode *r, double x, double y, double lx, double ly, value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, R report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
+	// If the node r is a leaf, check if the point is contained on the region
 	if (r->type==QuadTreeNode::BLACK) {
 		if (fabs(r->x-r_x)*2<=lr_x && fabs(r->y-r_y)*2<=lr_y)
 			report(r->info);
 		return;
 	}
 
-	// else GREY
+	// else GREY, check if the region overlaps with the quadrants and call recursivelly the search
 	for (int i=0; i<4; i++) {
 		if (r->children[i]!=nullptr && 
 			fabs(x+XF[i]*lx-r_x)*2<=lx+lr_x && 
@@ -305,6 +328,7 @@ void QuadTree<T,K>::search_region(QuadTreeNode *r, double x, double y, double lx
 	}
 }
 
+// Delete all nodes
 template<class T, class K>
 void QuadTree<T,K>::clear() { 
 	returnavail(root);
@@ -312,6 +336,7 @@ void QuadTree<T,K>::clear() {
 	_size = 0;
 }
 
+// Return the number of points on the tree
 template<class T, class K>
 size_t QuadTree<T,K>::size() {
 	return _size;

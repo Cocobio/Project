@@ -28,10 +28,10 @@ WorldCityMap::City parse_city_from_string(string line) {
 	string accentCity;
 	string region;
 	unsigned population;
-	float latitude;
-	float longitude;
-	float geopoint_x;
-	float geopoint_y;
+	double latitude;
+	double longitude;
+	double geopoint_x;
+	double geopoint_y;
 
 	// Read country, city, accent city and region
 	getline(csvStream, country ,';');
@@ -89,7 +89,7 @@ int main() {
 	file.close();
 
 	cout << "Numero de nodos: " << world_map.counter() << endl;
-	cout << "Memoria usada por los nodos: " << sizeof(QuadTree<float, unsigned>::QuadTreeNode)*world_map.counter() << endl;
+	cout << "Memoria usada por los nodos: " << sizeof(QuadTree<double, unsigned>::QuadTreeNode)*world_map.counter() << endl;
 	cout << "Memoria usada por la estructura quadtree: " << sizeof(WorldCityMap::PRTree) << endl;
 	cout << "Puntos almacenados: " << world_map.size() << " " << all_cities.size() << endl;
 

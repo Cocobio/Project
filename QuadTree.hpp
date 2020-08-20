@@ -32,7 +32,7 @@ references:
 #ifndef QUAD_TREE
 #define QUAD_TREE
 
-#define EPSILON 0.00001
+// #define EPSILON 0.00001
 
 #include <vector>
 #include <cmath>
@@ -82,10 +82,11 @@ class QuadTree {
 		bool remove(QuadTreeNode *p, double x, double y, double lx, double ly);
 
 		// Search functions
-		point_id search_point(QuadTreeNode *p, double x, double y, double lx, double ly);
+		template <class R>
+		void search_point(QuadTreeNode *p, double x, double y, double lx, double ly, R report);
 		template <class R>
 		void search_region(QuadTreeNode *n, double x, double y, double lx, double ly, 
-									value_t r_x, value_t r_y, value_t lr_x, value_t lr_y, R report);
+									value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, R report);
 		
 	public:
 		// Constructor
@@ -94,18 +95,20 @@ class QuadTree {
 		// Destructor
 		~QuadTree() { returnavail(root); }
 
-		// Drive functions for insertion and delition of nodes
+		// Driver functions for insertion and delition of nodes
 		bool insert(value_t x, value_t y, point_id p_id);
 		bool remove(value_t x, value_t y);
 		
-		// Drive functions for search using point and region
-		point_id search_point(value_t x, value_t y);
+		// Driver functions for search using point and region
+		template <class R>
+		void search_point(value_t x, value_t y, R report);
 		template <class R>
 		void search_region(value_t x, value_t y, value_t d_x, value_t d_y, R report);
 
 		// For getting the number of nodes
 		unsigned counter() {return node_count;}
 
+		// Clean and return the number of points on the structure
 		void clear();
 		size_t size();
 };

@@ -17,18 +17,19 @@ using namespace std;
 // Struct for saving the information of a single city
 class City_Struct {
 	public:
+		typedef double 			value_t;
 		char Country[2];
 		string City;
 		string AccentCity;
 		string Region;
 		unsigned Population;
-		float Latitude;
-		float Longitude;
-		pair<float,float> geopoint;
+		value_t Latitude;
+		value_t Longitude;
+		pair<value_t,value_t> geopoint;
 		
 	public:
 		// Constructor
-		City_Struct(string country, string city, string accent_city, string region, size_t population, float latitude, float longitude, float geopoint_x, float geopoint_y) {
+		City_Struct(string country, string city, string accent_city, string region, size_t population, value_t latitude, value_t longitude, value_t geopoint_x, value_t geopoint_y) {
 			Country[0] = country[0];
 			Country[1] = country[1];
 			City = city;
@@ -59,10 +60,11 @@ class City_Struct {
 // Class for organizing
 class WorldCityMap {
 	public:
-		typedef City_Struct					City;
-		// typedef vector<City> 				Container;
-		typedef unsigned 					point_id;
-		typedef QuadTree<float, point_id> 	PRTree;
+		typedef City_Struct						City;
+		// typedef vector<City> 					Container;
+		typedef unsigned 						point_id;
+		typedef double 							value_t;
+		typedef QuadTree<value_t, point_id> 	PRTree;
 
 	private:
 		// Container cities;
@@ -73,12 +75,12 @@ class WorldCityMap {
 
 		bool add_city(City c);
 		bool remove_city(City c);
-		void remove_city_by_geopoint(float x, float y);
+		void remove_city_by_geopoint(value_t x, value_t y);
 
-		unsigned long long population_query_by_point(pair<float,float> point);
-		unsigned long long population_query_by_point(float x, float y);
-		unsigned long long population_query_by_region(pair<float,float> center, float width, float height);
-		unsigned n_cities_query_by_region(pair<float,float> center, float width, float height);
+		unsigned long long population_query_by_point(pair<value_t,value_t> point);
+		unsigned long long population_query_by_point(value_t x, value_t y);
+		unsigned long long population_query_by_region(pair<value_t,value_t> center, value_t width, value_t height);
+		unsigned n_cities_query_by_region(pair<value_t,value_t> center, value_t width, value_t height);
 
 		unsigned counter() { return quadtree.counter(); }
 		size_t size() { return quadtree.size(); }
