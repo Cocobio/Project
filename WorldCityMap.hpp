@@ -1,4 +1,9 @@
 /*
+WorldCityMap
+
+Definition of a City class that contains all the data from the dataset
+
+Implementation of the interface between the quadtree and the requirements for the project assignment.
 */
 
 #ifndef WORLD_CITY_MAP
@@ -9,15 +14,13 @@
 #include <utility>
 #include "QuadTree.hpp"
 
-// tmp
-#include <iostream>
-
 using namespace std;
 
 // Struct for saving the information of a single city
 class City_Struct {
 	public:
 		typedef double 			value_t;
+
 		char Country[2];
 		string City;
 		string AccentCity;
@@ -51,12 +54,6 @@ class City_Struct {
 		}
 };
 
-// struct City_Compact {
-// 	float Latitude;
-// 	float Longitude;
-// 	unsigned Population;
-// };
-
 // Class for organizing
 class WorldCityMap {
 	public:
@@ -72,18 +69,24 @@ class WorldCityMap {
 		
 	public:
 		WorldCityMap() : quadtree(0.0, 0.0, 360.0, 180.0) {}
+		~WorldCityMap() { quadtree.clear(); }
 
+		// Add and remove functions
 		bool add_city(City c);
 		bool remove_city(City c);
 		void remove_city_by_geopoint(value_t x, value_t y);
 
+		// Queries for population and number of cities on point and region
 		unsigned long long population_query_by_point(pair<value_t,value_t> point);
 		unsigned long long population_query_by_point(value_t x, value_t y);
 		unsigned long long population_query_by_region(pair<value_t,value_t> center, value_t width, value_t height);
 		unsigned n_cities_query_by_region(pair<value_t,value_t> center, value_t width, value_t height);
 
-		unsigned counter() { return quadtree.counter(); }
-		size_t size() { return quadtree.size(); }
+		// Size, clean and size of the quadtree
+		size_t sizeof_quadtree();
+		unsigned quadtree_n_nodes();
+		size_t size();
+		void clear();
 };
 
 #include "WorldCityMap.cpp"
