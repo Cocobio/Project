@@ -18,7 +18,7 @@ Implementation of the interface between the quadtree and the requirements for th
 using namespace std;
 
 // Playing with precisions float/double
-typedef float precision;
+typedef double precision;
 
 // Struct for saving the information of a single city
 class City_Struct {
@@ -29,14 +29,14 @@ class City_Struct {
 		string City;
 		string AccentCity;
 		string Region;
-		unsigned Population;
+		unsigned long Population;
 		value_t Latitude;
 		value_t Longitude;
 		pair<value_t,value_t> geopoint;
 		
 	public:
 		// Constructor
-		City_Struct(string country, string city, string accent_city, string region, size_t population, value_t latitude, value_t longitude, value_t geopoint_x, value_t geopoint_y) {
+		City_Struct(string country, string city, string accent_city, string region, unsigned long population, value_t latitude, value_t longitude, value_t geopoint_x, value_t geopoint_y) {
 			Country[0] = country[0];
 			Country[1] = country[1];
 			City = city;

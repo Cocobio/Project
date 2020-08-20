@@ -27,7 +27,7 @@ WorldCityMap::City parse_city_from_string(string line) {
 	string city;
 	string accentCity;
 	string region;
-	unsigned population;
+	unsigned long population;
 	double latitude;
 	double longitude;
 	double geopoint_x;
@@ -41,6 +41,7 @@ WorldCityMap::City parse_city_from_string(string line) {
 
 	// Parsing population and geographic 
 	csvStream >> population;
+	// cout << city << " " << population << endl;
 	getline(csvStream, tmp ,';');
 	getline(csvStream, tmp ,';');
 	getline(csvStream, tmp ,';');
@@ -70,25 +71,26 @@ int main() {
 
 	// Read data from the .csv
 	// unsigned i=1;
-	while(getline(file, tmp))
-		world_map.add_city(parse_city_from_string(tmp));
+	// while(getline(file, tmp))
+	// 	world_map.add_city(parse_city_from_string(tmp));
 
-	// unsigned limite = -1;
-	// vector<WorldCityMap::City> all_cities;
+	unsigned limite = -1;
+	vector<WorldCityMap::City> all_cities;
 
-	// for(int i=0; getline(file, tmp) && i<limite; i++) {
-		// cout << i << endl;
-		// getline(file, tmp);
-		// WorldCityMap::City t = parse_city_from_string(tmp);
+	long long total_population = 0;
+	for(int i=0; getline(file, tmp) && i<limite; i++) {
+		WorldCityMap::City t = parse_city_from_string(tmp);
 		// t.print();
-		// if (world_map.add_city(t))
-		// 	all_cities.push_back(t);
-	// }
+		total_population += t.Population;
+		if (world_map.add_city(t))
+			all_cities.push_back(t);
+	}
 
 	file.close();
 
-	cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
-	cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
+	cout << "El total total de habitantes es: " << total_population << endl;
+	// cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
+	// cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
 	// cout << "Puntos almacenados: " << world_map.size() << " " << all_cities.size() << endl;
 
 	// for(auto &city : all_cities) {
@@ -96,30 +98,35 @@ int main() {
 	// 	world_map.remove_city(city);
 	// }
 
-	map<size_t,size_t> depths = world_map.get_leaf_depths();
+	// map<size_t,size_t> depths = world_map.get_leaf_depths();
 
-	for (auto &d : depths)
-		cout << d.first << " : " << d.second << endl;
-	
-	world_map.clear();
-	cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
+	// for (auto &d : depths)
+	// 	cout << d.first << " : " << d.second << endl;
+
+
 
 	// cout << world_map.n_cities_query_by_region(make_pair(0,0),360,180) << endl;
 
 	// cout << all_cities.size() << " cities added to the quadtree" << endl;
 
-	// // region
-	// float x = 37.0, y = 40.5, w = 6.0, h = 2.0;	
-	// cout << "searching!" << endl;
+	// region
+	double x = 0.0, y = 0., w = 360, h = 180;
+	cout << "searching!" << endl;
+	cout << "Poblacion total por region: " << world_map.population_query_by_region(make_pair(x,y), w, h) << endl;
 	// cout << endl << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
 
-	// unsigned long long p = 0;
-	// for (auto &c : all_cities) {
-	// 	if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
-	// 		p += c.Population;
-	// }
+	unsigned long long p = 0;
+	for (auto &c : all_cities) {
+		if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
+			p += c.Population;
+	}
 
-	// cout << endl << p << endl;
+	cout << "Fuerza bruta por region: " << p << endl;
+
+	total_population = 0;
+	for (auto &c : all_cities)
+		total_population += c.Population;
+	cout << "Todas poblacion de las ciudades insertadas: " << total_population << endl;
 
 	// int option, exit=5;
 	// string menu = "Menu:\n1.-Search with geopoint.\n2.-Remove\n3.-Population by Region\n4.-Cities on Region\n5.-Exit";
@@ -154,5 +161,7 @@ int main() {
 	// 	cin >> option;
 	// }
 	
+	world_map.clear();
+	cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
 	return 0;
 }

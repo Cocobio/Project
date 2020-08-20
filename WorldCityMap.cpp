@@ -80,8 +80,8 @@ void WorldCityMap::clear() {
 // 
 map<size_t,size_t> WorldCityMap::get_leaf_depths() {
 	map<size_t,size_t> depths;
-
-	quadtree.bfs([&depths] (PRTree::QuadTreeNode *a, size_t &d) -> void { if(a->type==PRTree::QuadTreeNode::BLACK) depths[d]++; } );
+	
+	quadtree.bfs([&depths] (PRTree::QuadTreeNode *a, size_t &d, pair<double,double> &center, double &lx, double &ly) -> void { if(a->type==PRTree::QuadTreeNode::BLACK) depths[d]++; } );
 
 	return depths;
 }

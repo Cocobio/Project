@@ -37,6 +37,7 @@ references:
 // #include <vector>
 #include <cmath>
 #include <queue>
+#include <functional>
 
 using namespace std;
 
@@ -83,11 +84,10 @@ class QuadTree {
 		bool remove(QuadTreeNode *p, double x, double y, double lx, double ly);
 
 		// Search functions
-		template <class R>
-		void search_point(QuadTreeNode *p, double x, double y, double lx, double ly, R report);
-		template <class R>
+		void search_point(QuadTreeNode *p, double x, double y, double lx, double ly, function<void(point_id&)> report);
 		void search_region(QuadTreeNode *n, double x, double y, double lx, double ly, 
-									value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, R report);
+							value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
+							function<void(point_id&)> report);
 		
 	public:
 		// Constructor
@@ -101,10 +101,8 @@ class QuadTree {
 		bool remove(value_t x, value_t y);
 		
 		// Driver functions for search using point and region
-		template <class R>
-		void search_point(value_t x, value_t y, R report);
-		template <class R>
-		void search_region(value_t x, value_t y, value_t d_x, value_t d_y, R report);
+		void search_point(value_t x, value_t y, function<void(point_id&)> report);
+		void search_region(value_t x, value_t y, value_t d_x, value_t d_y, function<void(point_id&)> report);
 
 		// For getting the number of nodes
 		unsigned counter() {return node_count;}
@@ -115,8 +113,7 @@ class QuadTree {
 
 		// BFS function using a reported to work on the nodes.
 		// The function should take the node and the level of the node on the tree
-		template <class R>
-		void bfs(R report);
+		void bfs(function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report);
 };
 
 #include "QuadTree.cpp"
