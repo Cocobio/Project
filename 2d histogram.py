@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-histogram_file = "2d histogram data.txt"
+histogram_file = "Data/2d histogram data.txt"
 
-dimention = (360*20,180*20)
+dimention = (360*30,180*30)
 
 with open(histogram_file, "r") as f:
 	str_data = f.readline().split(";")

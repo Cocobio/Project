@@ -84,6 +84,7 @@ class WorldCityMap {
 		unsigned long long population_query_by_point(pair<value_t,value_t> point);
 		unsigned long long population_query_by_point(value_t x, value_t y);
 		unsigned long long population_query_by_region(pair<value_t,value_t> center, value_t width, value_t height);
+		unsigned long long population_query_by_region_iter(pair<value_t,value_t> center, value_t width, value_t height);
 		unsigned n_cities_query_by_region(pair<value_t,value_t> center, value_t width, value_t height);
 
 		// Size, clean and size of the quadtree

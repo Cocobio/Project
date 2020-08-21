@@ -44,7 +44,7 @@ typename QuadTree<T,K>::Quadrant QuadTree<T,K>::compare(QuadTreeNode *p, double 
 		return NE;
 }
 
-// Insert point drive. will return true if the point was inserted
+// Insert point driver. will return true if the point was inserted
 template<class T, class K>
 bool QuadTree<T,K>::insert(value_t x, value_t y, point_id p_id) {
 	// Create a node for the point and sets its values
@@ -139,7 +139,7 @@ bool QuadTree<T,K>::insert(QuadTreeNode *p, double x, double y, double lx, doubl
 	return true;
 }
 
-// Drive functions for delete
+// Driver functions for delete
 template<class T, class K>
 bool QuadTree<T,K>::remove(value_t x, value_t y) {
 	// Creates nodes for maintaining naming convention and structure of functions
@@ -248,7 +248,7 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 	return true;
 }
 
-// Drive function for the seach using a point
+// Driver function for the seach using a point
 template<class T, class K>
 void QuadTree<T,K>::search_point(value_t x, value_t y, function<void(point_id&)> report) {
 	QuadTreeNode *p = new_node(QuadTreeNode::BLACK);
@@ -296,7 +296,7 @@ void QuadTree<T,K>::search_point(QuadTreeNode *p, double x, double y, double lx,
 	return;
 }
 
-// Drive function for search a region
+// Driver function for search a region
 template<class T, class K>
 void QuadTree<T,K>::search_region(value_t x, value_t y, value_t d_x, value_t d_y, function<void(point_id&)> report) {
 	// If there are no points on the tree, just return
@@ -328,10 +328,10 @@ void QuadTree<T,K>::search_region(QuadTreeNode *r, double x, double y, double lx
 	}
 }
 
-// Drive function for search a region
+// Driver function for search a region
 template<class T, class K>
 void QuadTree<T,K>::bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_t d_y, 
-		function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report) {
+		function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report) {
 	// If there are no points on the tree, just return
 	if (root==nullptr) return;
 
@@ -343,7 +343,7 @@ void QuadTree<T,K>::bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_
 template<class T, class K>
 void QuadTree<T,K>::bfs_by_region_iter(	QuadTreeNode *r, double x, double y, double lx, double ly, 
 										value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
-										function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report) {
+										function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
@@ -355,7 +355,7 @@ void QuadTree<T,K>::bfs_by_region_iter(	QuadTreeNode *r, double x, double y, dou
 	
 	size_t depth = 0;
 
-	current_lvl->push(make_pair(root, make_pair(double(0.0),double(0.0))));
+	current_lvl->push(make_pair(r, make_pair(double(0.0),double(0.0))));
 	int k = 0;
 	// while there are nodes to process
 	while (current_lvl->size()) {
@@ -367,7 +367,7 @@ void QuadTree<T,K>::bfs_by_region_iter(	QuadTreeNode *r, double x, double y, dou
 			pair<double,double> center = current_lvl->front().second;
 
 			current_lvl->pop();
-
+			
 			if (fabs(center.first-r_x)*2<=lr_x+lx && fabs(center.second-r_y)*2<=lr_y+ly) {
 				report(node, depth, center, lx, ly);
 				for (int i=0; i<4; i++) {
@@ -406,7 +406,7 @@ size_t QuadTree<T,K>::size() {
 // BFS function using a report info
 template <class T, class K>
 // function<void(args)> f;
-void QuadTree<T,K>::bfs(function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report) {
+void QuadTree<T,K>::bfs(function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
@@ -472,5 +472,9 @@ string QuadTree<T,K>::balanced_parentheses() {
 	return representation;
 }
 
+template <class T, class K>
+void QuadTree<T,K>::align_memory() {
+	
+}
 
 

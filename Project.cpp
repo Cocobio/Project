@@ -6,16 +6,26 @@ podemos hacerlo con flotantes en vez de enteros?
 #include <sstream>
 #include <fstream>
 #include <stdlib.h>
+#include <ctime>
 
 #include "WorldCityMap.hpp"
 
 // tmp
 #include <cmath>
-#include "QuadTree.hpp"
+#include <algorithm>
+#include <random>
 
 #define CITY_FILE "C:/worldcitiespop_fixed.csv"
 
 using namespace std;
+
+template<class F>
+double time_it(F func) {
+	clock_t t = clock();
+	func();
+	t = clock() - t; 
+	return ((double)t)/CLOCKS_PER_SEC;
+}
 
 // Parser for csv lines
 WorldCityMap::City parse_city_from_string(string line) {
@@ -57,7 +67,8 @@ WorldCityMap::City parse_city_from_string(string line) {
 }
 
 int main() {
-	cout << "Hello world!" << endl;
+	clock_t t; 
+	double time_taken; 
 
 	cout << "Node size: " << sizeof(WorldCityMap::PRTree::QuadTreeNode) << endl;
 
@@ -66,34 +77,38 @@ int main() {
 	ifstream file;
 	string tmp;
 
+	////////////////////////////
+	// Read data from the .csv
 	file.open(CITY_FILE);
 	getline(file, tmp);
 
-	// Read data from the .csv
-	// unsigned i=1;
-	// while(getline(file, tmp))
-	// 	world_map.add_city(parse_city_from_string(tmp));
+	vector<WorldCityMap::City> full_dataset;
+	while(getline(file, tmp))
+		full_dataset.push_back(parse_city_from_string(tmp));
+	file.close();
 
-	unsigned limite = 20;
-	vector<WorldCityMap::City> all_cities;
+	///////////////////////////
+	// Shuffle
+	auto rng = std::default_random_engine {};
+	shuffle(begin(full_dataset), end(full_dataset), rng);
 
+	full_dataset[0].print();
+
+	vector<WorldCityMap::City> quadtree_cities;
 	long long total_population = 0;
-	for(int i=0; getline(file, tmp) && i<limite; i++) {
-		WorldCityMap::City t = parse_city_from_string(tmp);
-		// t.print();
-		total_population += t.Population;
-		if (world_map.add_city(t))
-			all_cities.push_back(t);
+	for(auto &city : full_dataset) {
+		total_population += city.Population;
+		if (world_map.add_city(city))
+			quadtree_cities.push_back(city);
 	}
 
-	file.close();
 
 	cout << "El total total de habitantes es: " << total_population << endl;
 	// cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
 	// cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
-	// cout << "Puntos almacenados: " << world_map.size() << " " << all_cities.size() << endl;
+	// cout << "Puntos almacenados: " << world_map.size() << " " << quadtree_cities.size() << endl;
 
-	// for(auto &city : all_cities) {
+	// for(auto &city : quadtree_cities) {
 	// 	// cout << "delete: " << city.City << endl;
 	// 	world_map.remove_city(city);
 	// }
@@ -107,16 +122,25 @@ int main() {
 
 	// cout << world_map.n_cities_query_by_region(make_pair(0,0),360,180) << endl;
 
-	// cout << all_cities.size() << " cities added to the quadtree" << endl;
+	// cout << quadtree_cities.size() << " cities added to the quadtree" << endl;
 
 	// region
 	double x = 0.0, y = 0., w = 360, h = 180;
-	cout << "searching!" << endl;
-	cout << "Poblacion total por region: " << world_map.population_query_by_region(make_pair(x,y), w, h) << endl;
+	// cout << "searching!" << endl;
+	// cout << "Poblacion total por region: " << world_map.population_query_by_region(make_pair(x,y), w, h) << endl;
+	// cout << "Poblacion total por region iter: " << world_map.population_query_by_region_iter(make_pair(x,y), w, h) << endl;
+
+	// x = 40, y = -70, w = 15, h = 20;
+	time_taken = time_it([&world_map,&x,&y,&w,&h](){cout << "\nPoblacion total por region: " << world_map.population_query_by_region(make_pair(x,y), w, h) << endl;});
+	cout << "time taken: " << time_taken << endl;
+	time_taken = time_it([&world_map,&x,&y,&w,&h](){cout << "Poblacion total por region iter: " << world_map.population_query_by_region_iter(make_pair(x,y), w, h) << endl;});
+	cout << "time taken: " << time_taken << endl;
+	
+	
 	// cout << endl << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
 
 	unsigned long long p = 0;
-	for (auto &c : all_cities) {
+	for (auto &c : quadtree_cities) {
 		if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
 			p += c.Population;
 	}
@@ -124,7 +148,7 @@ int main() {
 	cout << "Fuerza bruta por region: " << p << endl;
 
 	total_population = 0;
-	for (auto &c : all_cities)
+	for (auto &c : quadtree_cities)
 		total_population += c.Population;
 	cout << "Todas poblacion de las ciudades insertadas: " << total_population << endl;
 
@@ -163,10 +187,16 @@ int main() {
 
 
 	// ******************************************************************************
-	// // 2D depth graph information
-	// unsigned p_x = 360*20;
-	// unsigned p_y = 180*20; 
+	// 2D depth graph information
+	// unsigned p_x = 360*30;
+	// unsigned p_y = 180*30;
+
+	// //// TIME MEASURE
+	// t = clock();
 	// vector<size_t> histogram2D = world_map.get_2D_depth_histogram(p_x,p_y);
+	// t = clock() - t; 
+	// time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
+	// /////////////////
 
 	// cout << "size of histogram: " << histogram2D.size() << endl;
 
@@ -176,9 +206,14 @@ int main() {
 	// for(auto &d : histogram2D)
 	// 	output_file << d << ";";
 	// output_file.close();
+	// cout << "Tiempo en calcular el histograma: " << time_taken << endl; 
 	// ******************************************************************************
 
-	cout << world_map.get_balanced_parentheses() << endl;
+	string balanced_parentheses = world_map.get_balanced_parentheses();
+
+	ofstream balanced_parentheses_file("./Data/balanced_parentheses.txt");
+	balanced_parentheses_file << balanced_parentheses << endl;
+	balanced_parentheses_file.close();
 	
 	world_map.clear();
 	cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;

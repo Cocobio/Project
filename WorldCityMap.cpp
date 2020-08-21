@@ -47,6 +47,22 @@ unsigned long long WorldCityMap::population_query_by_region(pair<value_t,value_t
 	return population;
 }
 
+unsigned long long WorldCityMap::population_query_by_region_iter(pair<value_t,value_t> center, value_t width, value_t height) {
+	unsigned long long population = 0;
+
+	auto func = [&population, &center, &width, &height] (PRTree::QuadTreeNode*& a, size_t& d, pair<double,double>& c, double& e, double& f) -> void { 
+				if (a->type==PRTree::QuadTreeNode::BLACK && fabs(a->x-center.first)*2<=width && fabs(a->y-center.second)*2<=height) {
+					// cout << "depth: " << d << "\t" << a->x << ", " << a->y << endl;
+					population += a->info;
+				}
+			};
+
+	// searches on the quadtree using a lambda function that accumulates the population of the cities found
+	quadtree.bfs_by_region_iter(center.first,center.second,width,height, func);
+
+	return population;
+}
+
 // Query the number of cities found inside a region
 unsigned WorldCityMap::n_cities_query_by_region(pair<value_t,value_t> center, value_t width, value_t height) {
 	unsigned n_of_cities = 0;
@@ -97,8 +113,18 @@ vector<size_t> WorldCityMap::get_2D_depth_histogram(size_t column, size_t row) {
 	for(int i=0; i<column; i++)
 		for(int j=0; j<row; j++) {
 			size_t *region_depth = &histogram_2d[i*row+j];
-			auto func = [region_depth] (PRTree::QuadTreeNode* a, size_t& d, pair<double,double>& c, double& e, double& f) -> void { if (*region_depth<d) *region_depth = d; };
-			quadtree.bfs_by_region_iter(-180+d_x/2.0+d_x*i,90-d_y/2.0-d_y*j,d_x-0.00001,d_y-0.00001, func);
+			double x = -180+d_x/2.0+d_x*i;
+			double y = 90-d_y/2.0-d_y*j;
+
+			// auto func = [region_depth, x,y, d_x, d_y] (PRTree::QuadTreeNode*& a, size_t& d, pair<double,double>& c, double& e, double& f) -> void { 
+			// 	if (a->type==PRTree::QuadTreeNode::BLACK && fabs(a->x-x)*2<=d_x && fabs(a->y-y)*2<=d_y && (*region_depth<d)) *region_depth = d;
+			// };
+
+			auto func = [region_depth] (PRTree::QuadTreeNode*& a, size_t& d, pair<double,double>& c, double& e, double& f) -> void { 
+				if (*region_depth<d) *region_depth = d;
+			};
+
+			quadtree.bfs_by_region_iter(-180+d_x/2.0+d_x*i,90-d_y/2.0-d_y*j,d_x-0.000001,d_y-0.000001, func);
 			// cout << "matrix[" << i << "," << j << "]  " << *region_depth << "  center: " << -180+d_x/2.0+d_x*i << ", " << 90-d_y/2.0-d_y*j << "\t lx,ly: " << d_x << ", " << d_y << endl;
 		}
 
