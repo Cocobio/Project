@@ -328,6 +328,67 @@ void QuadTree<T,K>::search_region(QuadTreeNode *r, double x, double y, double lx
 	}
 }
 
+// Drive function for search a region
+template<class T, class K>
+void QuadTree<T,K>::bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_t d_y, 
+		function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report) {
+	// If there are no points on the tree, just return
+	if (root==nullptr) return;
+
+	// recursively search on the tree
+	bfs_by_region_iter(root,center_x,center_y,Lx,Ly,x,y,d_x,d_y,report);
+}
+
+// Search points on a region and report then using a function
+template<class T, class K>
+void QuadTree<T,K>::bfs_by_region_iter(	QuadTreeNode *r, double x, double y, double lx, double ly, 
+										value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
+										function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report) {
+	static float XF[] = {-0.25,0.25,-0.25,0.25};
+	static float YF[] = {0.25,0.25,-0.25,-0.25};
+
+	queue<pair<QuadTreeNode*,pair<double,double>>> a, b;
+	queue<pair<QuadTreeNode*,pair<double,double>>> *current_lvl, *next_lvl, *tmp;
+
+	current_lvl = &a;
+	next_lvl = &b;
+	
+	size_t depth = 0;
+
+	current_lvl->push(make_pair(root, make_pair(double(0.0),double(0.0))));
+	int k = 0;
+	// while there are nodes to process
+	while (current_lvl->size()) {
+
+		// Process all the nodes on the current depth lvl
+		while (current_lvl->size()) {
+			// select a node
+			QuadTreeNode *node = current_lvl->front().first;
+			pair<double,double> center = current_lvl->front().second;
+
+			current_lvl->pop();
+
+			if (fabs(center.first-r_x)*2<=lr_x+lx && fabs(center.second-r_y)*2<=lr_y+ly) {
+				report(node, depth, center, lx, ly);
+				for (int i=0; i<4; i++) {
+					if (node->children[i]!=nullptr)
+						next_lvl->push(make_pair(node->children[i], make_pair(center.first+XF[i]*lx, center.second+YF[i]*ly)));
+				}
+			}
+		}
+
+		// next lvl
+		depth++;
+		lx /= 2.0;
+		ly /= 2.0;
+
+		// swap queues
+		tmp = current_lvl;
+		current_lvl = next_lvl;
+		next_lvl = tmp;
+	}
+}
+
 // Delete all nodes
 template<class T, class K>
 void QuadTree<T,K>::clear() { 

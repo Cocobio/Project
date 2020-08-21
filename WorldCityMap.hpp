@@ -94,6 +94,9 @@ class WorldCityMap {
 
 		// Get a vector for the depth on the black nodes
 		map<size_t,size_t> get_leaf_depths();
+
+		// Get a matrix with the maximum depth by region
+		vector<size_t> get_2D_depth_histogram(size_t column, size_t row);
 };
 
 #include "WorldCityMap.cpp"

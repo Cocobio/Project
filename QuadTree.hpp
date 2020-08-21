@@ -88,6 +88,9 @@ class QuadTree {
 		void search_region(QuadTreeNode *n, double x, double y, double lx, double ly, 
 							value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
 							function<void(point_id&)> report);
+		void bfs_by_region_iter(QuadTreeNode *n, double x, double y, double lx, double ly, 
+							value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
+							function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report);
 		
 	public:
 		// Constructor
@@ -103,6 +106,8 @@ class QuadTree {
 		// Driver functions for search using point and region
 		void search_point(value_t x, value_t y, function<void(point_id&)> report);
 		void search_region(value_t x, value_t y, value_t d_x, value_t d_y, function<void(point_id&)> report);
+		void bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_t d_y, function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report);
+		
 
 		// For getting the number of nodes
 		unsigned counter() {return node_count;}

@@ -98,10 +98,10 @@ int main() {
 	// 	world_map.remove_city(city);
 	// }
 
-	// map<size_t,size_t> depths = world_map.get_leaf_depths();
+	map<size_t,size_t> depths = world_map.get_leaf_depths();
 
-	// for (auto &d : depths)
-	// 	cout << d.first << " : " << d.second << endl;
+	for (auto &d : depths)
+		cout << d.first << " : " << d.second << endl;
 
 
 
@@ -160,6 +160,19 @@ int main() {
 	// 	cout << "new option: " ;
 	// 	cin >> option;
 	// }
+
+	unsigned p_x = 360*2;
+	unsigned p_y = 180*2; 
+	vector<size_t> histogram2D = world_map.get_2D_depth_histogram(p_x,p_y);
+
+	cout << "size of histogram: " << histogram2D.size() << endl;
+
+	ofstream output_file("./2d histogram data.txt");
+
+	// 2D histogram
+	for(auto &d : histogram2D)
+		output_file << d << ";";
+	output_file.close();
 	
 	world_map.clear();
 	cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
