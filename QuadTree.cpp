@@ -454,3 +454,23 @@ void QuadTree<T,K>::bfs(function<void(QuadTreeNode*, size_t&, pair<double,double
 	}
 }
 
+template <class T, class K>
+void QuadTree<T,K>::balanced_parentheses(QuadTreeNode *r, string& representation) {
+	representation += '(';
+
+	for (int i=0; i<4; i++)
+		if (r->children[i]!=nullptr)
+			balanced_parentheses(r->children[i], representation);
+
+	representation += ')';
+}
+
+template <class T, class K>
+string QuadTree<T,K>::balanced_parentheses() {
+	string representation = "";
+	balanced_parentheses(root,representation);
+	return representation;
+}
+
+
+

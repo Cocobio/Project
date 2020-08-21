@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 histogram_file = "2d histogram data.txt"
 
-dimention = (360*2,180*2)
+dimention = (360*20,180*20)
 
 with open(histogram_file, "r") as f:
 	str_data = f.readline().split(";")

@@ -39,6 +39,9 @@ references:
 #include <queue>
 #include <functional>
 
+// Only for balanced parentheses function
+#include <string>
+
 using namespace std;
 
 template <class T, class K>
@@ -91,6 +94,9 @@ class QuadTree {
 		void bfs_by_region_iter(QuadTreeNode *n, double x, double y, double lx, double ly, 
 							value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
 							function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report);
+
+		void balanced_parentheses(QuadTreeNode *r, string& representation);
+
 		
 	public:
 		// Constructor
@@ -119,6 +125,8 @@ class QuadTree {
 		// BFS function using a reported to work on the nodes.
 		// The function should take the node and the level of the node on the tree
 		void bfs(function<void(QuadTreeNode*, size_t&, pair<double,double>&, double&, double&)> report);
+
+		string balanced_parentheses();
 };
 
 #include "QuadTree.cpp"

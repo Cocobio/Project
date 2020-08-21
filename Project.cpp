@@ -74,7 +74,7 @@ int main() {
 	// while(getline(file, tmp))
 	// 	world_map.add_city(parse_city_from_string(tmp));
 
-	unsigned limite = -1;
+	unsigned limite = 20;
 	vector<WorldCityMap::City> all_cities;
 
 	long long total_population = 0;
@@ -161,18 +161,24 @@ int main() {
 	// 	cin >> option;
 	// }
 
-	unsigned p_x = 360*2;
-	unsigned p_y = 180*2; 
-	vector<size_t> histogram2D = world_map.get_2D_depth_histogram(p_x,p_y);
 
-	cout << "size of histogram: " << histogram2D.size() << endl;
+	// ******************************************************************************
+	// // 2D depth graph information
+	// unsigned p_x = 360*20;
+	// unsigned p_y = 180*20; 
+	// vector<size_t> histogram2D = world_map.get_2D_depth_histogram(p_x,p_y);
 
-	ofstream output_file("./2d histogram data.txt");
+	// cout << "size of histogram: " << histogram2D.size() << endl;
 
-	// 2D histogram
-	for(auto &d : histogram2D)
-		output_file << d << ";";
-	output_file.close();
+	// ofstream output_file("./Data/2d histogram data.txt");
+
+	// // 2D histogram
+	// for(auto &d : histogram2D)
+	// 	output_file << d << ";";
+	// output_file.close();
+	// ******************************************************************************
+
+	cout << world_map.get_balanced_parentheses() << endl;
 	
 	world_map.clear();
 	cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;

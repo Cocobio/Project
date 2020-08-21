@@ -97,6 +97,9 @@ class WorldCityMap {
 
 		// Get a matrix with the maximum depth by region
 		vector<size_t> get_2D_depth_histogram(size_t column, size_t row);
+
+		// QuadTree balanced parentheses representation
+		string get_balanced_parentheses();
 };
 
 #include "WorldCityMap.cpp"

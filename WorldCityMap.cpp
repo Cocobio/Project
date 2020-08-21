@@ -105,3 +105,8 @@ vector<size_t> WorldCityMap::get_2D_depth_histogram(size_t column, size_t row) {
 	return histogram_2d;
 }
 
+string WorldCityMap::get_balanced_parentheses() {
+	return quadtree.balanced_parentheses();
+}
+
+
