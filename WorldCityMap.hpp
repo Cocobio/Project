@@ -101,6 +101,10 @@ class WorldCityMap {
 
 		// QuadTree balanced parentheses representation
 		string get_balanced_parentheses();
+
+		// For testing
+		unsigned point_depth(value_t x, value_t y);
+		unsigned white_node_size();
 };
 
 #include "WorldCityMap.cpp"

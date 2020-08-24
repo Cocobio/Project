@@ -478,3 +478,80 @@ void QuadTree<T,K>::align_memory() {
 }
 
 
+template <class T, class K>
+unsigned QuadTree<T,K>::point_depth(QuadTreeNode *p, double x, double y, double lx, double ly) {
+
+	static float XF[] = {-0.25,0.25,-0.25,0.25};
+	static float YF[] = {0.25,0.25,-0.25,-0.25};
+
+	unsigned depth = 0;
+
+	// If there is no node root
+	if (root==nullptr) return 0;
+	
+	// If root is leaf check if the position matches the point
+	if (root->type == QuadTreeNode::BLACK) {
+		// if (fabs(root->x-p->x)<EPSILON && fabs(root->y-p->y)<EPSILON)
+		if (root->x == p->x && root->y == p->y)
+			return depth;
+		return 0;
+	} 
+
+	// Search for a leaf that matches the point
+	QuadTreeNode *t = root;
+	Quadrant q = compare(p,x,y);
+	while (t->children[q] != nullptr && t->children[q]->type == QuadTreeNode::GREY) {
+		t = t->children[q];
+		x += XF[q]*lx;
+		y += YF[q]*ly;
+		lx /= 2.0;
+		ly /= 2.0;
+		q = compare(p,x,y);
+		depth ++;
+	}
+
+	// If the point was found, report it
+	// if (t->children[q] == nullptr || fabs(t->children[q]->x-p->x)>=EPSILON || fabs(t->children[q]->y-p->y)>=EPSILON) 
+	if (t->children[q] != nullptr && t->children[q]->x == p->x && t->children[q]->y == p->y)
+		return depth;
+	return 0;
+}
+
+template <class T, class K>
+unsigned QuadTree<T,K>::point_depth(value_t x, value_t y) {
+	QuadTreeNode *p = new_node(QuadTreeNode::BLACK);
+	p->x = x;
+	p->y = y;
+	unsigned d =point_depth(p,center_x,center_y,Lx,Ly);
+	returnavail(p);
+
+	return d;
+}
+
+template <class T, class K>
+unsigned QuadTree<T,K>::white_node_size() {
+	queue<QuadTreeNode*> bfs_queue;
+
+	unsigned white_nodes = 0;
+
+	if (root == nullptr || root->type==QuadTreeNode::BLACK) return 0;
+
+	bfs_queue.push(root);
+
+	while(bfs_queue.size()) {
+		QuadTreeNode* current = bfs_queue.front();
+		bfs_queue.pop();
+
+		for(int i=0; i<4; i++) {
+			// count the white nodes
+			if(current->children[i]==nullptr)
+				white_nodes++;
+
+			// Ignore black nodes and continue searching the grey nodes
+			else if(current->children[i]->type == QuadTreeNode::GREY)
+				bfs_queue.push(current->children[i]);
+		}
+	}
+
+	return white_nodes;
+}

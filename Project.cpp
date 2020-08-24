@@ -24,8 +24,10 @@ double time_it(F func) {
 	clock_t t = clock();
 	func();
 	t = clock() - t; 
-	return ((double)t)/CLOCKS_PER_SEC;
+	return ((double)t)/(CLOCKS_PER_SEC);
 }
+
+double save_image_histogram(size_t c, size_t r, WorldCityMap &map, ofstream &output_file);
 
 // Parser for csv lines
 WorldCityMap::City parse_city_from_string(string line) {
@@ -78,42 +80,81 @@ int main() {
 	string tmp;
 
 	////////////////////////////
+	// Testing variables
+	size_t c = 360*30,	r = 180*30;
+	size_t step = -1;
+	size_t current = 1;
+	ofstream output_file("Data/times.txt");
+
+	////////////////////////////
 	// Read data from the .csv
 	file.open(CITY_FILE);
 	getline(file, tmp);
 
 	vector<WorldCityMap::City> full_dataset;
-	while(getline(file, tmp))
+	// int lim = 0;
+	
+	while(getline(file, tmp)) {
 		full_dataset.push_back(parse_city_from_string(tmp));
+		// if (lim++>0) break;
+	}
 	file.close();
 
 	///////////////////////////
 	// Shuffle
-	auto rng = std::default_random_engine {};
-	shuffle(begin(full_dataset), end(full_dataset), rng);
+	// auto rng = std::default_random_engine {std::random_device{}()};
+	// rng.seed(time(0));
+	// shuffle(begin(full_dataset), end(full_dataset), rng);
 
 	full_dataset[0].print();
+	full_dataset[1].print();
 
 	vector<WorldCityMap::City> quadtree_cities;
 	long long total_population = 0;
-	for(auto &city : full_dataset) {
+	// size_t inserted = 0;
+			
+
+	ofstream file_depth_avr("Data/black grey white nodes.txt");
+	double profundidad = 0.0;
+	unsigned inserted = 0;
+
+	t = clock();
+	for(int i=0; i<full_dataset.size(); i++) {
+		auto city = full_dataset[i];
 		total_population += city.Population;
-		if (world_map.add_city(city))
+		
+		if (world_map.add_city(city)) {
 			quadtree_cities.push_back(city);
+			profundidad += world_map.point_depth(city.Longitude, city.Latitude);
+			inserted++;
+		}
+
+		if (i%30000==0) {
+			t = clock() - t; 
+			output_file << ((double)t)/(CLOCKS_PER_SEC) << ";";
+			t=clock();
+
+			file_depth_avr << quadtree_cities.size() << ";" << world_map.quadtree_n_nodes()-quadtree_cities.size() << ";" << world_map.white_node_size() << endl;;
+			inserted = 0;
+			profundidad = 0;
+		}
 	}
+
+	file_depth_avr.close();
 
 
 	cout << "El total total de habitantes es: " << total_population << endl;
-	// cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
+	cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
 	// cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
-	// cout << "Puntos almacenados: " << world_map.size() << " " << quadtree_cities.size() << endl;
+	cout << "Puntos almacenados: " << world_map.size() << " " << quadtree_cities.size() << endl;
 
 	// for(auto &city : quadtree_cities) {
 	// 	// cout << "delete: " << city.City << endl;
 	// 	world_map.remove_city(city);
 	// }
 
-	map<size_t,size_t> depths = world_map.get_leaf_depths();
+	map<size_t,size_t> depths;
+	cout << "calculo de profundidades " << time_it([&depths, &world_map]() ->void { depths = world_map.get_leaf_depths(); }) << endl;
 
 	for (auto &d : depths)
 		cout << d.first << " : " << d.second << endl;
@@ -185,37 +226,67 @@ int main() {
 	// 	cin >> option;
 	// }
 
-
-	// ******************************************************************************
-	// 2D depth graph information
-	// unsigned p_x = 360*30;
-	// unsigned p_y = 180*30;
-
-	// //// TIME MEASURE
-	// t = clock();
-	// vector<size_t> histogram2D = world_map.get_2D_depth_histogram(p_x,p_y);
-	// t = clock() - t; 
-	// time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
-	// /////////////////
-
-	// cout << "size of histogram: " << histogram2D.size() << endl;
-
-	// ofstream output_file("./Data/2d histogram data.txt");
-
-	// // 2D histogram
-	// for(auto &d : histogram2D)
-	// 	output_file << d << ";";
-	// output_file.close();
-	// cout << "Tiempo en calcular el histograma: " << time_taken << endl; 
-	// ******************************************************************************
-
-	string balanced_parentheses = world_map.get_balanced_parentheses();
-
-	ofstream balanced_parentheses_file("./Data/balanced_parentheses.txt");
-	balanced_parentheses_file << balanced_parentheses << endl;
-	balanced_parentheses_file.close();
 	
-	world_map.clear();
-	cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
+
+	// ofstream histo2D("Data/2dHistogram.txt");
+	// cout << "Tiempo en calcular el histograma 2d: " << save_image_histogram(c,r,world_map,histo2D) << endl;
+	// histo2D.close();
+
+	// string balanced_parentheses = world_map.get_balanced_parentheses();
+	// cout << balanced_parentheses << endl;
+
+	// ofstream balanced_parentheses_file("./Data/balanced_parentheses.txt");
+	// balanced_parentheses_file << balanced_parentheses << endl;
+	// balanced_parentheses_file.close();
+	
+	output_file.close();
+	// world_map.clear();
+	// cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
+	int j=1;
+	ofstream file_remove_depth_avr("Data/remove t y depth avr.txt");
+
+	// shuffle cities to be removed
+	//  rng = std::default_random_engine {std::random_device{}()};
+	// rng.seed(time(0));
+	// shuffle(begin(quadtree_cities), end(quadtree_cities), rng);
+
+	cout << quadtree_cities[0].City << endl;
+	profundidad = 0;
+
+	cout << "about to remove!" << endl;
+	t = clock();
+	for(int i=1; i<=quadtree_cities.size(); i++) {
+		auto city = quadtree_cities[i];
+
+		profundidad += world_map.point_depth(city.Longitude, city.Latitude);
+		world_map.remove_city(city);
+
+		if (i>=quadtree_cities.size()/100.0*j) {
+			j++;
+			t = clock() - t; 
+			file_remove_depth_avr << ((double)t)/(CLOCKS_PER_SEC) << ";";
+			t=clock();
+
+			file_remove_depth_avr << profundidad/(quadtree_cities.size()/100.0) << endl;;
+			profundidad = 0;
+		}
+	}
+
+	file_remove_depth_avr.close();
 	return 0;
 }
+
+double save_image_histogram(size_t c, size_t r, WorldCityMap &map, ofstream &output_file) {
+	// ******************************************************************************
+	// 2D depth graph information
+	vector<size_t> histogram2D;
+	double time_taken = time_it([&histogram2D, &c, &r, &map]() { histogram2D = map.get_2D_depth_histogram(c,r); });
+
+	// Write on the file
+	for(auto &d : histogram2D)
+		output_file << d << ";";
+	output_file << endl;
+	return time_taken;
+	// ******************************************************************************
+}
+	

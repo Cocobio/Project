@@ -136,3 +136,11 @@ string WorldCityMap::get_balanced_parentheses() {
 }
 
 
+unsigned WorldCityMap::point_depth(value_t x, value_t y) {
+	return quadtree.point_depth(x,y);
+}
+
+
+unsigned WorldCityMap::white_node_size() {
+	return quadtree.white_node_size();
+}

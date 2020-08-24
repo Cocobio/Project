@@ -131,6 +131,11 @@ class QuadTree {
 
 		// Experimental
 		void align_memory();
+
+		// Only for testing
+		unsigned point_depth(value_t x, value_t y);
+		unsigned point_depth(QuadTreeNode *p, double x, double y, double lx, double ly);
+		unsigned white_node_size();
 };
 
 #include "QuadTree.cpp"
