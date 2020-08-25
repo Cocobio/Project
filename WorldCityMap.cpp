@@ -50,7 +50,7 @@ unsigned long long WorldCityMap::population_query_by_region(pair<value_t,value_t
 unsigned long long WorldCityMap::population_query_by_region_iter(pair<value_t,value_t> center, value_t width, value_t height) {
 	unsigned long long population = 0;
 
-	auto func = [&population, &center, &width, &height] (PRTree::QuadTreeNode*& a, size_t& d, pair<double,double>& c, double& e, double& f) -> void { 
+	auto func = [&population, &center, &width, &height] (PRTree::QuadTreeNode*& a, size_t& d, pair<PRTree::precision,PRTree::precision>& c, PRTree::precision& e, PRTree::precision& f) -> void { 
 				if (a->type==PRTree::QuadTreeNode::BLACK && fabs(a->x-center.first)*2<=width && fabs(a->y-center.second)*2<=height) {
 					// cout << "depth: " << d << "\t" << a->x << ", " << a->y << endl;
 					population += a->info;
@@ -97,7 +97,11 @@ void WorldCityMap::clear() {
 map<size_t,size_t> WorldCityMap::get_leaf_depths() {
 	map<size_t,size_t> depths;
 
-	quadtree.bfs([&depths] (PRTree::QuadTreeNode *a, size_t &d, pair<double,double> &center, double &lx, double &ly) -> void { if(a->type==PRTree::QuadTreeNode::BLACK) depths[d]++; } );
+	auto func = [&depths] (PRTree::QuadTreeNode *a, size_t &d, pair<PRTree::precision,PRTree::precision> &center, PRTree::precision &lx, PRTree::precision &ly) -> void {
+			if(a->type==PRTree::QuadTreeNode::BLACK) depths[d]++;
+		};
+
+	quadtree.bfs(func);
 
 	return depths;
 }
@@ -120,7 +124,7 @@ vector<size_t> WorldCityMap::get_2D_depth_histogram(size_t column, size_t row) {
 			// 	if (a->type==PRTree::QuadTreeNode::BLACK && fabs(a->x-x)*2<=d_x && fabs(a->y-y)*2<=d_y && (*region_depth<d)) *region_depth = d;
 			// };
 
-			auto func = [region_depth] (PRTree::QuadTreeNode*& a, size_t& d, pair<double,double>& c, double& e, double& f) -> void { 
+			auto func = [region_depth] (PRTree::QuadTreeNode*& a, size_t& d, pair<PRTree::precision,PRTree::precision>& c, PRTree::precision& e, PRTree::precision& f) -> void { 
 				if (*region_depth<d) *region_depth = d;
 			};
 
@@ -143,4 +147,25 @@ unsigned WorldCityMap::point_depth(value_t x, value_t y) {
 
 unsigned WorldCityMap::white_node_size() {
 	return quadtree.white_node_size();
+}
+
+vector<map<size_t,size_t>> WorldCityMap::get_nodes_depths() {
+	vector<map<size_t,size_t>> depths(3,map<size_t,size_t>());
+
+	auto func = [&depths] (PRTree::QuadTreeNode *a, size_t &d, pair<PRTree::precision,PRTree::precision> &center, PRTree::precision &lx, PRTree::precision &ly) -> void {
+			// Histogram for black nodes
+			if(a->type==PRTree::QuadTreeNode::BLACK) depths[0][d]++;
+			else {
+				// Histogram for grey nodes
+				depths[1][d]++;
+
+				// Histogram for white nodes
+				for (int i=0; i<4; i++)
+					if (a->children[i]==nullptr) depths[2][d+1]++;
+			}
+		};
+
+	quadtree.bfs(func);
+
+	return depths;
 }

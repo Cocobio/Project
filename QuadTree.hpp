@@ -49,6 +49,7 @@ class QuadTree {
 	public:
 		typedef T 					value_t;
 		typedef K					point_id;
+		typedef double				precision;
 
 		//			   			 00, 01, 10, 11
 		enum Quadrant : uint8_t {NW, NE, SW, SE};
@@ -67,8 +68,8 @@ class QuadTree {
 		QuadTreeNode* root;
 		// vector<QuadTreeNode> node_pool;
 
-		double Lx, Ly;
-		double center_x, center_y;
+		precision Lx, Ly;
+		precision center_x, center_y;
 
 		size_t _size;
 
@@ -80,30 +81,30 @@ class QuadTree {
 		void returnavail(QuadTreeNode* p);
 
 		// Identify quadrant in which p lays using x and y as center
-		Quadrant compare(QuadTreeNode *p, double x, double y);
+		Quadrant compare(QuadTreeNode *p, precision x, precision y);
 
 		// Insert and remove functions
-		bool insert(QuadTreeNode *p, double x, double y, double lx, double ly);
-		bool remove(QuadTreeNode *p, double x, double y, double lx, double ly);
+		bool insert(QuadTreeNode *p, precision x, precision y, precision lx, precision ly);
+		bool remove(QuadTreeNode *p, precision x, precision y, precision lx, precision ly);
 
 		// Search functions
-		void search_point(QuadTreeNode *p, double x, double y, double lx, double ly, function<void(point_id&)> report);
-		void search_region(QuadTreeNode *n, double x, double y, double lx, double ly, 
+		void search_point(QuadTreeNode *p, precision x, precision y, precision lx, precision ly, function<void(point_id&)> report);
+		void search_region(QuadTreeNode *n, precision x, precision y, precision lx, precision ly, 
 							value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
 							function<void(point_id&)> report);
-		void bfs_by_region_iter(QuadTreeNode *n, double x, double y, double lx, double ly, 
+		void bfs_by_region_iter(QuadTreeNode *n, precision x, precision y, precision lx, precision ly, 
 							value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
-							function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report);
+							function<void(QuadTreeNode*&, size_t&, pair<precision,precision>&, precision&, precision&)> report);
 
 		// recursive balanced parentheses
 		void balanced_parentheses(QuadTreeNode *r, string& representation);
 		
 	public:
 		// Constructor
-		QuadTree(value_t x, value_t y, double lx, double ly) : center_x(x), center_y(y), Lx(lx), Ly(ly), root(nullptr), node_count(0), _size(0) {}
+		QuadTree(value_t x, value_t y, precision lx, precision ly) : center_x(x), center_y(y), Lx(lx), Ly(ly), root(nullptr), node_count(0), _size(0) {}
 
 		// Destructor
-		~QuadTree() { clear(); }
+		~QuadTree() { clear(); cout << "a;skjdf";}
 
 		// Driver functions for insertion and delition of nodes
 		bool insert(value_t x, value_t y, point_id p_id);
@@ -112,7 +113,7 @@ class QuadTree {
 		// Driver functions for search using point and region
 		void search_point(value_t x, value_t y, function<void(point_id&)> report);
 		void search_region(value_t x, value_t y, value_t d_x, value_t d_y, function<void(point_id&)> report);
-		void bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_t d_y, function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report);
+		void bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_t d_y, function<void(QuadTreeNode*&, size_t&, pair<precision,precision>&, precision&, precision&)> report);
 		
 
 		// For getting the number of nodes
@@ -124,7 +125,7 @@ class QuadTree {
 
 		// BFS function using a reported to work on the nodes.
 		// The function should take the node and the level of the node on the tree
-		void bfs(function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report);
+		void bfs(function<void(QuadTreeNode*&, size_t&, pair<precision,precision>&, precision&, precision&)> report);
 
 		// Representation of balanced parentheses
 		string balanced_parentheses();
@@ -134,7 +135,7 @@ class QuadTree {
 
 		// Only for testing
 		unsigned point_depth(value_t x, value_t y);
-		unsigned point_depth(QuadTreeNode *p, double x, double y, double lx, double ly);
+		unsigned point_depth(QuadTreeNode *p, precision x, precision y, precision lx, precision ly);
 		unsigned white_node_size();
 };
 

@@ -31,7 +31,7 @@ void QuadTree<T,K>::returnavail(QuadTreeNode* p) {
 
 // Identify the quadrant
 template<class T, class K>
-typename QuadTree<T,K>::Quadrant QuadTree<T,K>::compare(QuadTreeNode *p, double x, double y) {
+typename QuadTree<T,K>::Quadrant QuadTree<T,K>::compare(QuadTreeNode *p, precision x, precision y) {
 	if (p->x<x) {
 		if (p->y<y)
 			return SW;
@@ -64,7 +64,7 @@ bool QuadTree<T,K>::insert(value_t x, value_t y, point_id p_id) {
 // Insert point on tree
 // returns whether the point was inserted or not
 template<class T, class K>
-bool QuadTree<T,K>::insert(QuadTreeNode *p, double x, double y, double lx, double ly) {
+bool QuadTree<T,K>::insert(QuadTreeNode *p, precision x, precision y, precision lx, precision ly) {
 	// factors to move center of regions while the algorithm moves down the tree
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
@@ -155,7 +155,7 @@ bool QuadTree<T,K>::remove(value_t x, value_t y) {
 
 // Delete node from tree
 template<class T, class K>
-bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, double ly) {
+bool QuadTree<T,K>::remove(QuadTreeNode *p, precision x, precision y, precision lx, precision ly) {
 	// Factors to move center of regions while the algorithm moves down the tree
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
@@ -182,6 +182,9 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 	// Search for the quadrant that might contain the point p
 	do {
 		q = compare(p,x,y);
+		// cout << "compared, q: " << t->children[q] << endl;
+
+		if (t->children[q]==nullptr) return false;
 
 		// Save the last node that had more than 1 child
 		if (t->children[q]->type == QuadTreeNode::GREY && (t->children[q^1]!=nullptr ||
@@ -189,17 +192,26 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 			f = t;
 			qf = q;
 		}
+
+		// cout << "last node saved" << endl;
 		
 		// Save the father of the quadrant
 		ft = t;
 		t = t->children[q];
+
+		// cout << "references" << endl;
 
 		// dive to the next level
 		x += XF[q]*lx;
 		y += YF[q]*ly;
 		lx /= 2.0;
 		ly /= 2.0;
+		// cout << "muriendo en este while" << t << " ";
+		// if (t!=nullptr)
+		// 	cout << t->type;
+		// cout << endl;
 	} while (t!=nullptr && t->type==QuadTreeNode::GREY);
+	// cout << "salimos del while!" << endl;
 	// until the node doesnt exist or its found as a leaf node
 
 	// If there is no node on the quadrant for p or the leaf node has different position
@@ -239,6 +251,7 @@ bool QuadTree<T,K>::remove(QuadTreeNode *p, double x, double y, double lx, doubl
 		t->children[q] = nullptr;
 		returnavail(t);
 		t = tmp;
+		// cout << "muriendo en este otro while" << endl;
 	}
 
 	// Set the black node to the position
@@ -262,7 +275,7 @@ void QuadTree<T,K>::search_point(value_t x, value_t y, function<void(point_id&)>
 
 // Search a point and return its info
 template<class T, class K>
-void QuadTree<T,K>::search_point(QuadTreeNode *p, double x, double y, double lx, double ly, function<void(point_id&)> report) {
+void QuadTree<T,K>::search_point(QuadTreeNode *p, precision x, precision y, precision lx, precision ly, function<void(point_id&)> report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
@@ -308,7 +321,7 @@ void QuadTree<T,K>::search_region(value_t x, value_t y, value_t d_x, value_t d_y
 
 // Search points on a region and report then using a function
 template<class T, class K>
-void QuadTree<T,K>::search_region(QuadTreeNode *r, double x, double y, double lx, double ly, value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, function<void(point_id&)> report) {
+void QuadTree<T,K>::search_region(QuadTreeNode *r, precision x, precision y, precision lx, precision ly, value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, function<void(point_id&)> report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
@@ -331,7 +344,7 @@ void QuadTree<T,K>::search_region(QuadTreeNode *r, double x, double y, double lx
 // Driver function for search a region
 template<class T, class K>
 void QuadTree<T,K>::bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_t d_y, 
-		function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report) {
+		function<void(QuadTreeNode*&, size_t&, pair<precision,precision>&, precision&, precision&)> report) {
 	// If there are no points on the tree, just return
 	if (root==nullptr) return;
 
@@ -341,21 +354,21 @@ void QuadTree<T,K>::bfs_by_region_iter(value_t x, value_t y, value_t d_x, value_
 
 // Search points on a region and report then using a function
 template<class T, class K>
-void QuadTree<T,K>::bfs_by_region_iter(	QuadTreeNode *r, double x, double y, double lx, double ly, 
+void QuadTree<T,K>::bfs_by_region_iter(	QuadTreeNode *r, precision x, precision y, precision lx, precision ly, 
 										value_t &r_x, value_t &r_y, value_t &lr_x, value_t &lr_y, 
-										function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report) {
+										function<void(QuadTreeNode*&, size_t&, pair<precision,precision>&, precision&, precision&)> report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
-	queue<pair<QuadTreeNode*,pair<double,double>>> a, b;
-	queue<pair<QuadTreeNode*,pair<double,double>>> *current_lvl, *next_lvl, *tmp;
+	queue<pair<QuadTreeNode*,pair<precision,precision>>> a, b;
+	queue<pair<QuadTreeNode*,pair<precision,precision>>> *current_lvl, *next_lvl, *tmp;
 
 	current_lvl = &a;
 	next_lvl = &b;
 	
 	size_t depth = 0;
 
-	current_lvl->push(make_pair(r, make_pair(double(0.0),double(0.0))));
+	current_lvl->push(make_pair(r, make_pair(precision(0.0),precision(0.0))));
 	int k = 0;
 	// while there are nodes to process
 	while (current_lvl->size()) {
@@ -364,7 +377,7 @@ void QuadTree<T,K>::bfs_by_region_iter(	QuadTreeNode *r, double x, double y, dou
 		while (current_lvl->size()) {
 			// select a node
 			QuadTreeNode *node = current_lvl->front().first;
-			pair<double,double> center = current_lvl->front().second;
+			pair<precision,precision> center = current_lvl->front().second;
 
 			current_lvl->pop();
 			
@@ -406,21 +419,21 @@ size_t QuadTree<T,K>::size() {
 // BFS function using a report info
 template <class T, class K>
 // function<void(args)> f;
-void QuadTree<T,K>::bfs(function<void(QuadTreeNode*&, size_t&, pair<double,double>&, double&, double&)> report) {
+void QuadTree<T,K>::bfs(function<void(QuadTreeNode*&, size_t&, pair<precision,precision>&, precision&, precision&)> report) {
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
 
-	queue<pair<QuadTreeNode*,pair<double,double>>> a, b;
-	queue<pair<QuadTreeNode*,pair<double,double>>> *current_lvl, *next_lvl, *tmp;
+	queue<pair<QuadTreeNode*,pair<precision,precision>>> a, b;
+	queue<pair<QuadTreeNode*,pair<precision,precision>>> *current_lvl, *next_lvl, *tmp;
 
-	double lx = Lx, ly = Ly;
+	precision lx = Lx, ly = Ly;
 
 	current_lvl = &a;
 	next_lvl = &b;
 	
 	size_t depth = 0;
 
-	current_lvl->push(make_pair(root, make_pair(double(0.0),double(0.0))));
+	current_lvl->push(make_pair(root, make_pair(precision(0.0),precision(0.0))));
 	
 	// while there are nodes to process
 	while (current_lvl->size()) {
@@ -429,7 +442,7 @@ void QuadTree<T,K>::bfs(function<void(QuadTreeNode*&, size_t&, pair<double,doubl
 		while (current_lvl->size()) {
 			// select a node
 			QuadTreeNode *node = current_lvl->front().first;
-			pair<double,double> center = current_lvl->front().second;
+			pair<precision,precision> center = current_lvl->front().second;
 
 			current_lvl->pop();
 
@@ -479,7 +492,7 @@ void QuadTree<T,K>::align_memory() {
 
 
 template <class T, class K>
-unsigned QuadTree<T,K>::point_depth(QuadTreeNode *p, double x, double y, double lx, double ly) {
+unsigned QuadTree<T,K>::point_depth(QuadTreeNode *p, precision x, precision y, precision lx, precision ly) {
 
 	static float XF[] = {-0.25,0.25,-0.25,0.25};
 	static float YF[] = {0.25,0.25,-0.25,-0.25};
@@ -487,15 +500,8 @@ unsigned QuadTree<T,K>::point_depth(QuadTreeNode *p, double x, double y, double 
 	unsigned depth = 0;
 
 	// If there is no node root
-	if (root==nullptr) return 0;
-	
-	// If root is leaf check if the position matches the point
-	if (root->type == QuadTreeNode::BLACK) {
-		// if (fabs(root->x-p->x)<EPSILON && fabs(root->y-p->y)<EPSILON)
-		if (root->x == p->x && root->y == p->y)
-			return depth;
-		return 0;
-	} 
+	if (root==nullptr || root->type == QuadTreeNode::BLACK)
+		return depth;
 
 	// Search for a leaf that matches the point
 	QuadTreeNode *t = root;
@@ -510,11 +516,7 @@ unsigned QuadTree<T,K>::point_depth(QuadTreeNode *p, double x, double y, double 
 		depth ++;
 	}
 
-	// If the point was found, report it
-	// if (t->children[q] == nullptr || fabs(t->children[q]->x-p->x)>=EPSILON || fabs(t->children[q]->y-p->y)>=EPSILON) 
-	if (t->children[q] != nullptr && t->children[q]->x == p->x && t->children[q]->y == p->y)
-		return depth;
-	return 0;
+	return depth;
 }
 
 template <class T, class K>

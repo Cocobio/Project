@@ -28,6 +28,9 @@ double time_it(F func) {
 }
 
 double save_image_histogram(size_t c, size_t r, WorldCityMap &map, ofstream &output_file);
+void test_random_point_searches(WorldCityMap &world_map);
+void test_contained_point_searches(WorldCityMap &world_map, vector<WorldCityMap::City> &cities);
+void test_region_searches(WorldCityMap &world_map);
 
 // Parser for csv lines
 WorldCityMap::City parse_city_from_string(string line) {
@@ -92,60 +95,92 @@ int main() {
 	getline(file, tmp);
 
 	vector<WorldCityMap::City> full_dataset;
+	vector<WorldCityMap::City> quadtree_cities;
+	quadtree_cities.reserve(full_dataset.size());
 	// int lim = 0;
+	long long total_population = 0;
 	
 	while(getline(file, tmp)) {
-		full_dataset.push_back(parse_city_from_string(tmp));
-		// if (lim++>0) break;
+		auto c_tmp = parse_city_from_string(tmp);
+		
+		total_population += c_tmp.Population;
+		full_dataset.push_back(c_tmp);
+		// if (lim++>1000) break;
+		if (world_map.add_city(c_tmp))
+			quadtree_cities.push_back(c_tmp);
 	}
 	file.close();
+	world_map.clear();
 
 	///////////////////////////
 	// Shuffle
-	// auto rng = std::default_random_engine {std::random_device{}()};
-	// rng.seed(time(0));
-	// shuffle(begin(full_dataset), end(full_dataset), rng);
+	auto rng = std::default_random_engine {std::random_device{}()};
+	rng.seed(time(0));
+	shuffle(begin(full_dataset), end(full_dataset), rng);
 
 	full_dataset[0].print();
 	full_dataset[1].print();
 
-	vector<WorldCityMap::City> quadtree_cities;
-	long long total_population = 0;
 	// size_t inserted = 0;
 			
 
-	ofstream file_depth_avr("Data/black grey white nodes.txt");
+	// ofstream file_depth_avr("Data/avr_depth.txt");
 	double profundidad = 0.0;
 	unsigned inserted = 0;
+	int j = 1;
+
+	cout << "quadtree_cities.size()/100.0 = " << quadtree_cities.size()/100.0 << endl;
 
 	t = clock();
-	for(int i=0; i<full_dataset.size(); i++) {
-		auto city = full_dataset[i];
-		total_population += city.Population;
+	for(int i=1; i<=quadtree_cities.size(); i++) {
+		auto city = quadtree_cities[i-1];
+
+		world_map.add_city(city);
+		// profundidad += world_map.point_depth(city.Longitude, city.Latitude);
+		// inserted++;
+
+		// if ((i>=quadtree_cities.size()/100.0*j)) {
+		// 	j++;
+		// 	// t = clock() - t; 
+		// 	// output_file << ((double)t)/(CLOCKS_PER_SEC) << ";";
+		// 	// t=clock();
+
+		// 	// file_depth_avr << quadtree_cities.size() << ";" << world_map.quadtree_n_nodes()-quadtree_cities.size() << ";" << world_map.white_node_size() << endl;;
+		// 	// file_depth_avr << profundidad / inserted << ";";
+		// 	inserted = 0;
+		// 	profundidad = 0;
+		// }
+	// for(int i=1; i<=full_dataset.size(); i++) {
+		// auto city = full_dataset[i-1];
+		// total_population += city.Population;
 		
-		if (world_map.add_city(city)) {
-			quadtree_cities.push_back(city);
-			profundidad += world_map.point_depth(city.Longitude, city.Latitude);
-			inserted++;
-		}
+		// if (world_map.add_city(city)) {
+		// 	quadtree_cities.push_back(city);
+		// 	profundidad += world_map.point_depth(city.Longitude, city.Latitude);
+		// 	inserted++;
+		// }
 
-		if (i%30000==0) {
-			t = clock() - t; 
-			output_file << ((double)t)/(CLOCKS_PER_SEC) << ";";
-			t=clock();
+		// if ((i>=full_dataset.size()/100.0*j)) {
+		// 	j++;
+		// 	t = clock() - t; 
+		// 	output_file << ((double)t)/(CLOCKS_PER_SEC) << ";";
+		// 	t=clock();
 
-			file_depth_avr << quadtree_cities.size() << ";" << world_map.quadtree_n_nodes()-quadtree_cities.size() << ";" << world_map.white_node_size() << endl;;
-			inserted = 0;
-			profundidad = 0;
-		}
+		// 	// file_depth_avr << quadtree_cities.size() << ";" << world_map.quadtree_n_nodes()-quadtree_cities.size() << ";" << world_map.white_node_size() << endl;;
+		// 	file_depth_avr << profundidad / inserted << ";";
+		// 	inserted = 0;
+		// 	profundidad = 0;
+		// }
 	}
+	t = clock() - t; 
+	cout << "Tiempo total para insertar: " << ((double)t)/(CLOCKS_PER_SEC) << ";";
 
-	file_depth_avr.close();
+	// file_depth_avr.close();
 
 
-	cout << "El total total de habitantes es: " << total_population << endl;
+	// cout << "El total total de habitantes es: " << total_population << endl;
 	cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
-	// cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
+	cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
 	cout << "Puntos almacenados: " << world_map.size() << " " << quadtree_cities.size() << endl;
 
 	// for(auto &city : quadtree_cities) {
@@ -156,8 +191,19 @@ int main() {
 	map<size_t,size_t> depths;
 	cout << "calculo de profundidades " << time_it([&depths, &world_map]() ->void { depths = world_map.get_leaf_depths(); }) << endl;
 
-	for (auto &d : depths)
-		cout << d.first << " : " << d.second << endl;
+	// for (auto &d : depths)
+	// 	cout << d.first << " : " << d.second << endl;
+
+
+	// // ofstream nodes_depth_by_type_histogram("Data/histograma de profundidad de nodos por tipo.txt");
+
+	// vector<map<size_t,size_t>> histograma_by_type = world_map.get_nodes_depths();
+	// for (auto &d : histograma_by_type[0])
+	// 	cout << d.first << " : " << d.second << endl;
+	// for (auto &d : histograma_by_type[1])
+	// 	cout << d.first << " : " << d.second << endl;
+	// for (auto &d : histograma_by_type[2])
+	// 	cout << d.first << " : " << d.second << endl;
 
 
 
@@ -238,17 +284,21 @@ int main() {
 	// ofstream balanced_parentheses_file("./Data/balanced_parentheses.txt");
 	// balanced_parentheses_file << balanced_parentheses << endl;
 	// balanced_parentheses_file.close();
+
+	// test_random_point_searches(world_map);
+	// test_contained_point_searches(world_map, quadtree_cities);
+	// test_region_searches(world_map);
 	
 	output_file.close();
 	// world_map.clear();
 	// cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
-	int j=1;
+	j=1;
 	ofstream file_remove_depth_avr("Data/remove t y depth avr.txt");
 
 	// shuffle cities to be removed
-	//  rng = std::default_random_engine {std::random_device{}()};
-	// rng.seed(time(0));
-	// shuffle(begin(quadtree_cities), end(quadtree_cities), rng);
+	rng = std::default_random_engine {std::random_device{}()};
+	rng.seed(time(0));
+	shuffle(begin(quadtree_cities), end(quadtree_cities), rng);
 
 	cout << quadtree_cities[0].City << endl;
 	profundidad = 0;
@@ -256,23 +306,30 @@ int main() {
 	cout << "about to remove!" << endl;
 	t = clock();
 	for(int i=1; i<=quadtree_cities.size(); i++) {
-		auto city = quadtree_cities[i];
+		// cout << i << endl;
+		auto city = quadtree_cities[i-1];
 
 		profundidad += world_map.point_depth(city.Longitude, city.Latitude);
 		world_map.remove_city(city);
 
-		if (i>=quadtree_cities.size()/100.0*j) {
+		if (i>=quadtree_cities.size()/100.1*j) {
 			j++;
 			t = clock() - t; 
 			file_remove_depth_avr << ((double)t)/(CLOCKS_PER_SEC) << ";";
 			t=clock();
 
-			file_remove_depth_avr << profundidad/(quadtree_cities.size()/100.0) << endl;;
+			file_remove_depth_avr << profundidad/(quadtree_cities.size()/100.0) << endl;
 			profundidad = 0;
 		}
 	}
 
 	file_remove_depth_avr.close();
+
+	cout << "done!" << endl;
+	full_dataset.clear();
+	quadtree_cities.clear();
+
+	cout << "everything free" << endl;
 	return 0;
 }
 
@@ -289,4 +346,143 @@ double save_image_histogram(size_t c, size_t r, WorldCityMap &map, ofstream &out
 	return time_taken;
 	// ******************************************************************************
 }
-	
+
+void test_random_point_searches(WorldCityMap &world_map) {
+	ofstream file_output("Data/random point search.txt");
+
+	unsigned bins = 20000;
+	unsigned data = bins*100;
+	double profundidad = 0;
+
+	int j=1;
+
+	clock_t t = clock();
+	for(int i=0; i<=data; i++) {
+		double x = ((double)rand() / RAND_MAX)*360-180, y = ((double)rand() / RAND_MAX)*180-90;
+		world_map.population_query_by_point(x,y);
+		profundidad += world_map.point_depth(x,y);
+
+		if (i>=data/100*j) {
+			j++;
+
+			t = clock() - t;
+			file_output << ((double)t)/(CLOCKS_PER_SEC) << ";";
+			t = clock();
+
+			file_output << profundidad/(data/100.0) << endl;
+			profundidad = 0;
+		}
+	}
+
+	file_output.close();
+}
+
+
+void test_contained_point_searches(WorldCityMap &world_map, vector<WorldCityMap::City> &cities) {
+	ofstream file_output("Data/contained point search.txt");
+
+	unsigned bins = 20000;
+	unsigned data = bins*100;
+	double profundidad = 0;
+
+	int j=1;
+
+	clock_t t = clock();
+	for(int i=0; i<=data; i++) {
+		auto city = cities[rand()%cities.size()];
+		world_map.population_query_by_point(city.Longitude,city.Latitude);
+		profundidad += world_map.point_depth(city.Longitude,city.Latitude);
+
+		if (i>=data/100*j) {
+			j++;
+
+			t = clock() - t;
+			file_output << ((double)t)/(CLOCKS_PER_SEC) << ";";
+			t = clock();
+
+			file_output << profundidad/(data/100.0) << endl;
+			profundidad = 0;
+		}
+	}
+
+	file_output.close();
+}
+
+
+void test_region_searches(WorldCityMap &world_map) {
+	ofstream file_output("Data/random region search.txt");
+
+	unsigned test = 20;
+
+	int j=1;
+
+	for (int d=10; d<=140; d++) {
+		cout << d << endl;
+		unsigned long long n_of_cities = 0;
+
+		clock_t t = clock();
+		for(int i=0; i<=test; i++) {
+			double x = ((double)rand() / RAND_MAX)*(360-d)-180+d/2, y = ((double)rand() / RAND_MAX)*(180-d)-90+d/2;
+			n_of_cities += world_map.n_cities_query_by_region(make_pair(x,y), d, d);
+		}
+		t = clock() - t;
+
+		file_output << ((double)t)/(CLOCKS_PER_SEC) << ";" << n_of_cities/float(test) << endl;
+	}
+
+	file_output.close();
+}
+
+
+void test_single_batch_of_point_searches(WorldCityMap &world_map, vector<WorldCityMap::City> &cities, ofstream &file_output) {
+	// ofstream file_output("Data/random point search.txt");
+
+	unsigned bins = 20000;
+	unsigned data = bins*100;
+	double profundidad = 0;
+
+	int j=1;
+
+	clock_t t = clock();
+	for(int i=0; i<=data; i++) {
+		double x = ((double)rand() / RAND_MAX)*360-180, y = ((double)rand() / RAND_MAX)*180-90;
+		world_map.population_query_by_point(x,y);
+		profundidad += world_map.point_depth(x,y);
+
+		if (i>=data/100*j) {
+			j++;
+
+			t = clock();
+
+			profundidad = 0;
+		}
+	}
+	t = clock() - t;
+	file_output << ((double)t)/(CLOCKS_PER_SEC) << ";";
+	file_output << profundidad/data << endl;
+
+	profundidad = 0;
+
+	j=1;
+
+	t = clock();
+	for(int i=0; i<=data; i++) {
+		auto city = cities[rand()%cities.size()];
+		world_map.population_query_by_point(city.Longitude,city.Latitude);
+		profundidad += world_map.point_depth(city.Longitude,city.Latitude);
+
+		if (i>=data/100*j) {
+			j++;
+
+			t = clock() - t;
+			file_output << ((double)t)/(CLOCKS_PER_SEC) << ";";
+			t = clock();
+
+			file_output << profundidad/(data/100.0) << endl;
+			profundidad = 0;
+		}
+	}
+
+	file_output.close();
+}
+

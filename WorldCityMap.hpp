@@ -73,7 +73,7 @@ class WorldCityMap {
 		
 	public:
 		WorldCityMap() : quadtree(0.0, 0.0, 360.0, 180.0) {}
-		~WorldCityMap() { quadtree.clear(); }
+		~WorldCityMap() { cout << "clear!"; quadtree.clear(); cout << "cleared!";}
 
 		// Add and remove functions
 		bool add_city(City c);
@@ -105,6 +105,8 @@ class WorldCityMap {
 		// For testing
 		unsigned point_depth(value_t x, value_t y);
 		unsigned white_node_size();
+
+		vector<map<size_t,size_t>> get_nodes_depths();
 };
 
 #include "WorldCityMap.cpp"
