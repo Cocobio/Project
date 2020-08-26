@@ -277,35 +277,35 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 #########################################################################################################
-filename = "data/random region search.txt"
+# filename = "data/random region search.txt"
 
-with open(filename, 'r') as f:
-	content = f.readlines()
+# with open(filename, 'r') as f:
+# 	content = f.readlines()
 
-	t = [float(i.split(';')[0])/20 for i in content]
-	d = [float(i.split(';')[1]) for i in content]
-
-
-x = range(10, 10+len(content))
-
-color1='#3383e9'
-color2='#dc41f5'
-
-fig, ax1 = plt.subplots()
-
-ax1.set_title('Tiempos y numero de ciudades promedios de busqueda por region', fontsize=14)
-ax1.set_ylabel('Tiempo promedio de busqueda [s]', color=color1, fontsize=14)
-ax1.set_xlabel('Tamaño de arista de la region', fontsize=14)
-ax1.tick_params(axis='y', labelcolor=color1)
-
-ax1.bar(x,t, color=color1, label='Puntos Contenidos')
-ax2 = ax1.twinx()
-plt.plot(x, d, color=color2, label='Datos Aleatorios Contenidos')
-
-ax2.set_ylabel('Numero de ciudades promedio', color=color2, fontsize=14)
-ax2.tick_params(axis='y', labelcolor=color2)
+# 	t = [float(i.split(';')[0])/20 for i in content]
+# 	d = [float(i.split(';')[1]) for i in content]
 
 
-# plt.savefig("Imagenes/point search")
+# x = range(10, 10+len(content))
 
-plt.show()
+# color1='#3383e9'
+# color2='#dc41f5'
+
+# fig, ax1 = plt.subplots()
+
+# ax1.set_title('Tiempos y numero de ciudades promedios de busqueda por region', fontsize=14)
+# ax1.set_ylabel('Tiempo promedio de busqueda [s]', color=color1, fontsize=14)
+# ax1.set_xlabel('Tamaño de arista de la region', fontsize=14)
+# ax1.tick_params(axis='y', labelcolor=color1)
+
+# ax1.bar(x,t, color=color1, label='Puntos Contenidos')
+# ax2 = ax1.twinx()
+# plt.plot(x, d, color=color2, label='Datos Aleatorios Contenidos')
+
+# ax2.set_ylabel('Numero de ciudades promedio', color=color2, fontsize=14)
+# ax2.tick_params(axis='y', labelcolor=color2)
+
+
+# # plt.savefig("Imagenes/point search")
+
+# plt.show()

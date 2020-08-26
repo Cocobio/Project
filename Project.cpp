@@ -75,7 +75,7 @@ int main() {
 	clock_t t; 
 	double time_taken; 
 
-	cout << "Node size: " << sizeof(WorldCityMap::PRTree::QuadTreeNode) << endl;
+	// cout << "Node size: " << sizeof(WorldCityMap::PRTree::QuadTreeNode) << endl;
 
 	WorldCityMap world_map;
 
@@ -118,18 +118,18 @@ int main() {
 	rng.seed(time(0));
 	shuffle(begin(full_dataset), end(full_dataset), rng);
 
-	full_dataset[0].print();
-	full_dataset[1].print();
+	// full_dataset[0].print();
+	// full_dataset[1].print();
 
 	// size_t inserted = 0;
 			
 
 	// ofstream file_depth_avr("Data/avr_depth.txt");
-	double profundidad = 0.0;
-	unsigned inserted = 0;
-	int j = 1;
+	// double profundidad = 0.0;
+	// unsigned inserted = 0;
+	// int j = 1;
 
-	cout << "quadtree_cities.size()/100.0 = " << quadtree_cities.size()/100.0 << endl;
+	// cout << "quadtree_cities.size()/100.0 = " << quadtree_cities.size()/100.0 << endl;
 
 	t = clock();
 	for(int i=1; i<=quadtree_cities.size(); i++) {
@@ -179,17 +179,17 @@ int main() {
 
 
 	// cout << "El total total de habitantes es: " << total_population << endl;
-	cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
-	cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
-	cout << "Puntos almacenados: " << world_map.size() << " " << quadtree_cities.size() << endl;
+	// cout << "Numero de nodos: " << world_map.quadtree_n_nodes() << endl;
+	// cout << "Memoria usada por quadtree: " << world_map.sizeof_quadtree()/(1024*1024) << " MB." << endl;
+	// cout << "Puntos almacenados: " << world_map.size() << " " << quadtree_cities.size() << endl;
 
 	// for(auto &city : quadtree_cities) {
 	// 	// cout << "delete: " << city.City << endl;
 	// 	world_map.remove_city(city);
 	// }
 
-	map<size_t,size_t> depths;
-	cout << "calculo de profundidades " << time_it([&depths, &world_map]() ->void { depths = world_map.get_leaf_depths(); }) << endl;
+	// map<size_t,size_t> depths;
+	// cout << "calculo de profundidades " << time_it([&depths, &world_map]() ->void { depths = world_map.get_leaf_depths(); }) << endl;
 
 	// for (auto &d : depths)
 	// 	cout << d.first << " : " << d.second << endl;
@@ -212,65 +212,65 @@ int main() {
 	// cout << quadtree_cities.size() << " cities added to the quadtree" << endl;
 
 	// region
-	double x = 0.0, y = 0., w = 360, h = 180;
+	// double x = 0.0, y = 0., w = 360, h = 180;
 	// cout << "searching!" << endl;
 	// cout << "Poblacion total por region: " << world_map.population_query_by_region(make_pair(x,y), w, h) << endl;
 	// cout << "Poblacion total por region iter: " << world_map.population_query_by_region_iter(make_pair(x,y), w, h) << endl;
 
 	// x = 40, y = -70, w = 15, h = 20;
-	time_taken = time_it([&world_map,&x,&y,&w,&h](){cout << "\nPoblacion total por region: " << world_map.population_query_by_region(make_pair(x,y), w, h) << endl;});
-	cout << "time taken: " << time_taken << endl;
-	time_taken = time_it([&world_map,&x,&y,&w,&h](){cout << "Poblacion total por region iter: " << world_map.population_query_by_region_iter(make_pair(x,y), w, h) << endl;});
-	cout << "time taken: " << time_taken << endl;
+	// time_taken = time_it([&world_map,&x,&y,&w,&h](){cout << "\nPoblacion total por region: " << world_map.population_query_by_region(make_pair(x,y), w, h) << endl;});
+	// cout << "time taken: " << time_taken << endl;
+	// time_taken = time_it([&world_map,&x,&y,&w,&h](){cout << "Poblacion total por region iter: " << world_map.population_query_by_region_iter(make_pair(x,y), w, h) << endl;});
+	// cout << "time taken: " << time_taken << endl;
 	
 	
 	// cout << endl << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
 
-	unsigned long long p = 0;
-	for (auto &c : quadtree_cities) {
-		if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
-			p += c.Population;
-	}
-
-	cout << "Fuerza bruta por region: " << p << endl;
-
-	total_population = 0;
-	for (auto &c : quadtree_cities)
-		total_population += c.Population;
-	cout << "Todas poblacion de las ciudades insertadas: " << total_population << endl;
-
-	// int option, exit=5;
-	// string menu = "Menu:\n1.-Search with geopoint.\n2.-Remove\n3.-Population by Region\n4.-Cities on Region\n5.-Exit";
-	// float x, y, w, h;
-
-	// cout << menu << endl;
-	// cin >> option;
-	// while(option!=exit) {
-	// 	cin >> y >> x;
-		
-	// 	switch(option) {
-	// 		case 1:
-	// 		cout << world_map.population_query_by_point(x,y) << endl;
-	// 		break;
-
-	// 		case 2:
-	// 		world_map.remove_city_by_geopoint(x,y);
-	// 		break;
-
-	// 		case 3:
-	// 		cin >> w >> h;
-	// 		cout << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
-	// 		break;
-
-	// 		case 4:
-	// 		cin >> w >> h;
-	// 		cout << world_map.n_cities_query_by_region(make_pair(x,y),w,h) << endl;
-	// 		break;
-	// 	}
-
-	// 	cout << "new option: " ;
-	// 	cin >> option;
+	// unsigned long long p = 0;
+	// for (auto &c : quadtree_cities) {
+	// 	if (fabs(x-c.Longitude)*2<=w && fabs(y-c.Latitude)*2<=h)
+	// 		p += c.Population;
 	// }
+
+	// cout << "Fuerza bruta por region: " << p << endl;
+
+	// total_population = 0;
+	// for (auto &c : quadtree_cities)
+	// 	total_population += c.Population;
+	// cout << "Todas poblacion de las ciudades insertadas: " << total_population << endl;
+
+	int option, exit=5;
+	string menu = "Menu:\n1.-Search with geopoint.\n2.-Remove\n3.-Population by Region\n4.-Cities on Region\n5.-Exit";
+	float x, y, w, h;
+
+	cout << menu << endl;
+	cin >> option;
+	while(option!=exit) {
+		cin >> y >> x;
+		
+		switch(option) {
+			case 1:
+			cout << world_map.population_query_by_point(x,y) << endl;
+			break;
+
+			case 2:
+			world_map.remove_city_by_geopoint(x,y);
+			break;
+
+			case 3:
+			cin >> w >> h;
+			cout << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
+			break;
+
+			case 4:
+			cin >> w >> h;
+			cout << world_map.n_cities_query_by_region(make_pair(x,y),w,h) << endl;
+			break;
+		}
+
+		cout << "new option: " ;
+		cin >> option;
+	}
 
 	
 
@@ -289,47 +289,47 @@ int main() {
 	// test_contained_point_searches(world_map, quadtree_cities);
 	// test_region_searches(world_map);
 	
-	output_file.close();
+	// output_file.close();
 	// world_map.clear();
 	// cout << "Despues de borrar todo\nNodos: " << world_map.quadtree_n_nodes() << "\nPuntos: " << world_map.size() << endl;
-	j=1;
-	ofstream file_remove_depth_avr("Data/remove t y depth avr.txt");
+	// j=1;
+	// ofstream file_remove_depth_avr("Data/remove t y depth avr.txt");
 
-	// shuffle cities to be removed
-	rng = std::default_random_engine {std::random_device{}()};
-	rng.seed(time(0));
-	shuffle(begin(quadtree_cities), end(quadtree_cities), rng);
+	// // shuffle cities to be removed
+	// rng = std::default_random_engine {std::random_device{}()};
+	// rng.seed(time(0));
+	// shuffle(begin(quadtree_cities), end(quadtree_cities), rng);
 
-	cout << quadtree_cities[0].City << endl;
-	profundidad = 0;
+	// cout << quadtree_cities[0].City << endl;
+	// profundidad = 0;
 
-	cout << "about to remove!" << endl;
-	t = clock();
-	for(int i=1; i<=quadtree_cities.size(); i++) {
-		// cout << i << endl;
-		auto city = quadtree_cities[i-1];
+	// cout << "about to remove!" << endl;
+	// t = clock();
+	// for(int i=1; i<=quadtree_cities.size(); i++) {
+	// 	// cout << i << endl;
+	// 	auto city = quadtree_cities[i-1];
 
-		profundidad += world_map.point_depth(city.Longitude, city.Latitude);
-		world_map.remove_city(city);
+	// 	profundidad += world_map.point_depth(city.Longitude, city.Latitude);
+	// 	world_map.remove_city(city);
 
-		if (i>=quadtree_cities.size()/100.1*j) {
-			j++;
-			t = clock() - t; 
-			file_remove_depth_avr << ((double)t)/(CLOCKS_PER_SEC) << ";";
-			t=clock();
+	// 	if (i>=quadtree_cities.size()/100.1*j) {
+	// 		j++;
+	// 		t = clock() - t; 
+	// 		file_remove_depth_avr << ((double)t)/(CLOCKS_PER_SEC) << ";";
+	// 		t=clock();
 
-			file_remove_depth_avr << profundidad/(quadtree_cities.size()/100.0) << endl;
-			profundidad = 0;
-		}
-	}
+	// 		file_remove_depth_avr << profundidad/(quadtree_cities.size()/100.0) << endl;
+	// 		profundidad = 0;
+	// 	}
+	// }
 
-	file_remove_depth_avr.close();
+	// file_remove_depth_avr.close();
 
-	cout << "done!" << endl;
-	full_dataset.clear();
-	quadtree_cities.clear();
+	// cout << "done!" << endl;
+	// full_dataset.clear();
+	// quadtree_cities.clear();
 
-	cout << "everything free" << endl;
+	// cout << "everything free" << endl;
 	return 0;
 }
 
