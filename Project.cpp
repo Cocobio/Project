@@ -250,21 +250,21 @@ int main() {
 		
 		switch(option) {
 			case 1:
-			cout << world_map.population_query_by_point(x,y) << endl;
+			cout << "Time taken for query: "  << time_it([&world_map, &x, &y] () -> void { cout << world_map.population_query_by_point(x,y) << endl; }) << " [s]" << endl;
 			break;
 
 			case 2:
-			world_map.remove_city_by_geopoint(x,y);
+			cout << "Time taken for query: "  << time_it([&world_map, &x, &y] () -> void { world_map.remove_city_by_geopoint(x,y); }) << " [s]" << endl;
 			break;
 
 			case 3:
 			cin >> w >> h;
-			cout << world_map.population_query_by_region(make_pair(x,y),w,h) << endl;
+			cout << "Time taken for query: "  << time_it([&world_map, &x, &y, &w, &h] () -> void { cout << world_map.population_query_by_region(make_pair(x,y),w,h) << endl; }) << " [s]" << endl;
 			break;
 
 			case 4:
 			cin >> w >> h;
-			cout << world_map.n_cities_query_by_region(make_pair(x,y),w,h) << endl;
+			cout << "Time taken for query: "  << time_it([&world_map, &x, &y, &w, &h] () -> void { cout << world_map.n_cities_query_by_region(make_pair(x,y),w,h) << endl; }) << " [s]" << endl;
 			break;
 		}
 
